@@ -20,6 +20,7 @@ call plug#begin(expand($XDG_CONFIG_HOME.'/nvim/plugged'))
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
+Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-repeat'
 Plug 'flazz/vim-colorschemes'
 Plug 'itchyny/lightline.vim'
@@ -34,7 +35,7 @@ call plug#end()
 "*****************************************************************************
 
 set number relativenumber
-set path+=**
+set path=.,,**
 
 " Tabs
 set tabstop=4
@@ -46,7 +47,16 @@ let &undodir = expand($XDG_CONFIG_HOME.'/nvim/undo')
 set undofile
 
 " Remove trailing spaces on save
-autocmd BufWritePre * :%s/\s\+$//e
+augroup vimrc-trim-spaces-on-save
+    autocmd!
+    autocmd BufWritePre * :%s/\s\+$//e
+augroup END
+
+" Remember cursor position
+augroup vimrc-remember-cursor-position
+  autocmd!
+  autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+augroup END
 
 "*****************************************************************************
 "" Visual Settings
@@ -70,9 +80,9 @@ noremap XX "+x<CR>
 
 " Switching windows
 noremap <C-j> <C-w>j
-noremap <C-k> <C-k>j
-noremap <C-l> <C-l>j
-noremap <C-h> <C-h>j
+noremap <C-k> <C-w>k
+noremap <C-l> <C-w>l
+noremap <C-h> <C-w>h
 
 " Clear the highlighting of :set hlsearch
 nnoremap <silent> <C-n> :nohlsearch<CR>
@@ -86,3 +96,4 @@ tnoremap <esc> <C-\><C-n>
 
 au TermOpen * setlocal nonumber norelativenumber
 au TermOpen * startinsert
+
