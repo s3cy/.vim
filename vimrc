@@ -1,6 +1,7 @@
 "********************************************************************************
-" Vim-Plug core
+"" Vim-Plug core
 "********************************************************************************
+
 let vimplug_exists=expand('~/.vim/autoload/plug.vim')
 
 if !filereadable(vimplug_exists)
@@ -10,7 +11,7 @@ if !filereadable(vimplug_exists)
   endif
   echo "Installing Vim-Plug..."
   echo ""
-  silent exec "!\curl -fLo " . vimplug_exists . " --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+  silent exec "!\curl --insecure -fLo " . vimplug_exists . " --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
 
   autocmd VimEnter * PlugInstall
 endif
@@ -18,27 +19,31 @@ endif
 " Required:
 call plug#begin(expand('~/.vim/plugged'))
 
+Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
-Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-unimpaired'
-Plug 'tpope/vim-obsession'
-Plug 'itchyny/lightline.vim'
+Plug 'tpope/vim-repeat'
 Plug 'flazz/vim-colorschemes'
+Plug 'itchyny/lightline.vim'
 Plug 'shinchu/lightline-gruvbox.vim'
 Plug 'craigemery/vim-autotag'
 
 call plug#end()
 
 "********************************************************************************
-" Basic Setup
+"" Basic Setup
 "********************************************************************************
 
 set hlsearch
 set number relativenumber
 set path=.,,**
+
+" Tabs
+set tabstop=4
+set shiftwidth=4
+set expandtab
 
 " Undo files
 if !isdirectory(expand("~/.vim/undo"))
@@ -47,13 +52,18 @@ endif
 set undodir=~/.vim/undo
 set undofile
 
-" Mouse support
-set mouse=a
-set ttymouse=sgr
+" Write the content before :make
+set autowrite
 
-"********************************************************************************
-" Visual Settings
-"********************************************************************************
+" Remove trailing spaces on save
+augroup vimrc-trim-spaces-on-save
+    au!
+    au BufWritePre * :%s/\s\+$//e
+augroup END
+
+"*****************************************************************************
+"" Visual Settings
+"*****************************************************************************
 
 colorscheme gruvbox
 set background=dark
@@ -61,11 +71,9 @@ set background=dark
 let g:lightline = {}
 let g:lightline.colorscheme = 'gruvbox'
 
-"********************************************************************************
-" Key Bindings
-"********************************************************************************
-
-let g:mapleader=' '
+"*****************************************************************************
+"" Key Bindings
+"*****************************************************************************
 
 " Copy/Paste/Cut
 noremap YY "+y<CR>
@@ -79,4 +87,3 @@ noremap <C-h> <C-w>h
 
 " Clear the highlighting of :set hlsearch
 nnoremap <silent> <C-n> :nohlsearch<CR>
-
