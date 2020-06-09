@@ -16,7 +16,7 @@ if !filereadable(vimplug_exists)
   autocmd VimEnter * PlugInstall
 endif
 
-" Required:
+" Required
 call plug#begin(expand('~/.vim/plugged'))
 
 Plug 'tpope/vim-sensible'
@@ -29,6 +29,7 @@ Plug 'flazz/vim-colorschemes'
 Plug 'itchyny/lightline.vim'
 Plug 'shinchu/lightline-gruvbox.vim'
 Plug 'craigemery/vim-autotag'
+Plug 'fatih/vim-go', {'do': ':GoInstallBinaries'}
 
 call plug#end()
 
@@ -37,6 +38,7 @@ call plug#end()
 "********************************************************************************
 
 set hlsearch
+set showcmd
 set number relativenumber
 set path=.,,**
 
@@ -44,6 +46,9 @@ set path=.,,**
 set tabstop=4
 set shiftwidth=4
 set expandtab
+
+" Tree view
+let g:netrw_liststyle = 3
 
 " Undo files
 if !isdirectory(expand("~/.vim/undo"))
@@ -67,6 +72,7 @@ augroup END
 
 colorscheme gruvbox
 set background=dark
+set t_Co=256
 
 let g:lightline = {}
 let g:lightline.colorscheme = 'gruvbox'
@@ -87,3 +93,24 @@ noremap <C-h> <C-w>h
 
 " Clear the highlighting of :set hlsearch
 nnoremap <silent> <C-n> :nohlsearch<CR>
+
+" Use <esc> to exit terminal insert mode
+tnoremap <esc> <C-\><C-n>
+
+"*****************************************************************************
+"" Go
+"*****************************************************************************
+
+au BufNewFile,BufRead *.go setlocal noexpandtab tabstop=4 shiftwidth=4 softtabstop=4
+
+let g:go_textobj_enabled = 0
+let g:go_def_mapping_enabled = 0
+let g:go_doc_keywordprg_enabled = 0
+
+augroup go
+    au!
+    au Filetype go nmap <C-]> <Plug>(go-def)
+    au Filetype go nmap <C-t> <Plug>(go-def-pop)
+    au Filetype go nmap gh <Plug>(go-info)
+    au Filetype go CommandCabbr tags GoDefStack
+augroup END
