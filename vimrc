@@ -19,6 +19,7 @@ endif
 " Required
 call plug#begin(expand('~/.vim/plugged'))
 
+Plug 'tpope/vim-vinegar'
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
@@ -29,6 +30,7 @@ Plug 'flazz/vim-colorschemes'
 Plug 'itchyny/lightline.vim'
 Plug 'shinchu/lightline-gruvbox.vim'
 Plug 'craigemery/vim-autotag'
+Plug 'niklaas/lightline-gitdiff'
 Plug 'fatih/vim-go', {'do': ':GoInstallBinaries'}
 
 call plug#end()
@@ -39,6 +41,7 @@ call plug#end()
 
 set hlsearch
 set showcmd
+set nowrap
 set number relativenumber
 set path=.,,**
 
@@ -60,10 +63,25 @@ set undofile
 " Write the content before :make
 set autowrite
 
+command! -nargs=1 Silent
+            \ | execute ':silent !'.<q-args>
+
+" Remember cursor position
+augroup vimrc-remember-cursor-position
+    au!
+    au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+augroup END
+
 " Remove trailing spaces on save
 augroup vimrc-trim-spaces-on-save
     au!
     au BufWritePre * :%s/\s\+$//e
+augroup END
+
+" Fugitive buffer readonly
+augroup vimrc-fugitive-buffer-readonly
+    au!
+    au BufReadPost fugitive://* setlocal nomodifiable readonly
 augroup END
 
 "*****************************************************************************
@@ -74,7 +92,26 @@ colorscheme gruvbox
 set background=dark
 set t_Co=256
 
-let g:lightline = {}
+function! LightlineMode()
+    return expand('%') =~# '^fugitive://' ? 'GIT':
+          \ lightline#mode()
+endfunction
+let g:lightline = {
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ],
+      \             [ 'filename', 'readonly', 'modified' ],
+      \             [ 'gitdiff' ] ]
+      \ },
+      \ 'component_function': {
+      \   'mode': 'LightlineMode',
+      \ },
+      \ 'component_expand': {
+      \   'gitdiff': 'lightline#gitdiff#get',
+      \ },
+      \ 'component_type': {
+      \   'gitdiff': 'middle',
+      \ },
+      \ }
 let g:lightline.colorscheme = 'gruvbox'
 
 "*****************************************************************************
@@ -90,6 +127,13 @@ noremap <C-j> <C-w>j
 noremap <C-k> <C-w>k
 noremap <C-l> <C-w>l
 noremap <C-h> <C-w>h
+
+" Shell-style command moves
+cnoremap <C-a> <HOME>
+cnoremap <C-f> <Right>
+cnoremap <C-b> <Left>
+cnoremap <Esc>b <S-Left>
+cnoremap <Esc>f <S-Right>
 
 " Clear the highlighting of :set hlsearch
 nnoremap <silent> <C-n> :nohlsearch<CR>
@@ -112,5 +156,4 @@ augroup go
     au Filetype go nmap <C-]> <Plug>(go-def)
     au Filetype go nmap <C-t> <Plug>(go-def-pop)
     au Filetype go nmap gh <Plug>(go-info)
-    au Filetype go CommandCabbr tags GoDefStack
 augroup END
