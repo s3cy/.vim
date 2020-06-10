@@ -1,8 +1,17 @@
 "********************************************************************************
+"" Portable
+"********************************************************************************
+
+set nocompatible
+let &runtimepath = printf('%s/vimfiles,%s,%s/vimfiles/after', $VIM, $VIMRUNTIME, $VIM)
+let s:portable = expand('<sfile>:p:h')
+let &runtimepath = printf('%s,%s,%s/after', s:portable, &runtimepath, s:portable)
+
+"********************************************************************************
 "" Vim-Plug core
 "********************************************************************************
 
-let vimplug_exists=expand('~/.vim/autoload/plug.vim')
+let vimplug_exists=expand(s:portable.'/autoload/plug.vim')
 
 if !filereadable(vimplug_exists)
     if !executable("curl")
@@ -17,7 +26,7 @@ if !filereadable(vimplug_exists)
 endif
 
 " Required
-call plug#begin(expand('~/.vim/plugged'))
+call plug#begin(expand(s:portable.'/plugged'))
 
 Plug 'tpope/vim-vinegar'
 Plug 'tpope/vim-sensible'
@@ -55,10 +64,10 @@ set expandtab
 let g:netrw_liststyle = 3
 
 " Undo files
-if !isdirectory(expand("~/.vim/undo"))
-    call mkdir(expand("~/.vim/undo"), "", 0700)
+if !isdirectory(expand(s:portable.'/undo'))
+    call mkdir(expand(s:portable.'/undo'), '', 0700)
 endif
-set undodir=~/.vim/undo
+exe 'set undodir=expand(s:portable."/undo")'
 set undofile
 
 " Write the content before :make
