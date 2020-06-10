@@ -110,14 +110,21 @@ function! LightlineMode()
     return expand('%') =~# '^fugitive://' ? 'GIT':
                 \ lightline#mode()
 endfunction
+function! LightlineAutoformat()
+    return get(g:, 'autoformat', 0) ? 'AF' : ''
+endfunction
 let g:lightline = {
             \ 'active': {
-            \   'left': [ [ 'mode', 'paste' ],
+            \   'left': [ [ 'mode' ],
             \             [ 'readonly', 'filename', 'modified' ],
-            \             [ 'gitdiff' ] ]
+            \             [ 'gitdiff' ] ],
+            \   'right': [ [ 'autoformat' ],
+            \              [ 'percent' ],
+            \              [ 'fileformat', 'fileencoding', 'filetype' ] ]
             \ },
             \ 'component_function': {
             \   'mode': 'LightlineMode',
+            \   'autoformat': 'LightlineAutoformat',
             \ },
             \ 'component_expand': {
             \   'gitdiff': 'lightline#gitdiff#get',
@@ -154,6 +161,9 @@ nnoremap <silent> <C-n> :nohlsearch<CR>
 
 " Use <esc> to exit terminal insert mode
 tnoremap <esc> <C-\><C-n>
+
+" Toggle autoformat
+nnoremap <silent> = :let g:autoformat = !get(g:, 'autoformat', 0)<CR>
 
 "*****************************************************************************
 "" Go
