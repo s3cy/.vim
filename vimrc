@@ -41,6 +41,7 @@ Plug 'shinchu/lightline-gruvbox.vim'
 Plug 'craigemery/vim-autotag'
 Plug 'Chiel92/vim-autoformat'
 Plug 'niklaas/lightline-gitdiff'
+Plug 'takac/vim-hardtime'
 Plug 'fatih/vim-go', {'do': ':GoInstallBinaries'}
 
 call plug#end()
@@ -67,11 +68,17 @@ let g:netrw_liststyle = 3
 if !isdirectory(expand(s:portable.'/undo'))
     call mkdir(expand(s:portable.'/undo'), '', 0700)
 endif
-exe 'set undodir=expand(s:portable."/undo")'
+exe 'set undodir='.expand(s:portable."/undo")
 set undofile
 
 " Write the content before :make
 set autowrite
+
+" Hardtime
+let g:hardtime_default_on = 1
+let g:list_of_normal_keys = ["h", "j", "k", "l", "<UP>", "<DOWN>", "<LEFT>", "<RIGHT>"]
+let g:list_of_visual_keys = ["h", "j", "k", "l", "<UP>", "<DOWN>", "<LEFT>", "<RIGHT>"]
+let g:hardtime_timeout = 200
 
 command! -nargs=1 Silent
             \ | execute ':silent !'.<q-args>
