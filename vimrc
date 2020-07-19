@@ -35,10 +35,11 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-dispatch'
 Plug 'flazz/vim-colorschemes'
 Plug 'itchyny/lightline.vim'
 Plug 'shinchu/lightline-gruvbox.vim'
-Plug 'craigemery/vim-autotag'
+Plug 'ludovicchabant/vim-gutentags'
 Plug 'Chiel92/vim-autoformat'
 Plug 'niklaas/lightline-gitdiff'
 Plug 'takac/vim-hardtime'
@@ -51,8 +52,10 @@ call plug#end()
 "********************************************************************************
 
 set hlsearch
+set nohidden
 set showcmd
 set nowrap
+set cursorline
 set number relativenumber
 set path=.,,**
 
@@ -61,8 +64,12 @@ set tabstop=4
 set shiftwidth=4
 set expandtab
 
-" Tree view
+" Netrw
 let g:netrw_liststyle = 3
+let g:netrw_fastbrowse = 0
+
+" Match angle brackets
+set matchpairs+=<:>
 
 " Undo files
 if !isdirectory(expand(s:portable.'/undo'))
@@ -105,6 +112,13 @@ augroup vimrc-autoformat
                 \ | endif
 augroup END
 
+" Force refresh status-line when getentags updates
+augroup getentags-status-line-refresher
+    au!
+    au User GutentagsUpdating call lightline#update()
+    au User GutentagsUpdated call lightline#update()
+augroup END
+
 "*****************************************************************************
 "" Visual Settings
 "*****************************************************************************
@@ -118,13 +132,13 @@ function! LightlineMode()
                 \ lightline#mode()
 endfunction
 function! LightlineAutoformat()
-    return get(g:, 'autoformat', 0) ? 'AF' : ''
+    return get(g:, 'autoformat', 0) ? '=' : ''
 endfunction
 let g:lightline = {
             \ 'active': {
             \   'left': [ [ 'mode' ],
             \             [ 'readonly', 'filename', 'modified' ],
-            \             [ 'gitdiff' ] ],
+            \             [ 'gitdiff', 'ctags' ] ],
             \   'right': [ [ 'autoformat' ],
             \              [ 'percent' ],
             \              [ 'fileformat', 'fileencoding', 'filetype' ] ]
@@ -135,6 +149,7 @@ let g:lightline = {
             \ },
             \ 'component_expand': {
             \   'gitdiff': 'lightline#gitdiff#get',
+            \   'ctags': 'gutentags#statusline',
             \ },
             \ 'component_type': {
             \   'gitdiff': 'middle',
@@ -170,7 +185,7 @@ nnoremap <silent> <C-n> :nohlsearch<CR>
 tnoremap <esc> <C-\><C-n>
 
 " Toggle autoformat
-nnoremap <silent> = :let g:autoformat = !get(g:, 'autoformat', 0)<CR>
+nnoremap <silent> == :let g:autoformat = !get(g:, 'autoformat', 0)<CR>
 
 "*****************************************************************************
 "" Go
@@ -184,7 +199,6 @@ let g:go_doc_keywordprg_enabled = 0
 
 augroup go
     au!
-    au Filetype go nmap <C-]> <Plug>(go-def)
-    au Filetype go nmap <C-t> <Plug>(go-def-pop)
+    au Filetype go nmap gd <Plug>(go-def)
     au Filetype go nmap gh <Plug>(go-info)
 augroup END
