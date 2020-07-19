@@ -35,10 +35,10 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-dispatch'
 Plug 'flazz/vim-colorschemes'
 Plug 'itchyny/lightline.vim'
 Plug 'shinchu/lightline-gruvbox.vim'
+Plug 'skywind3000/asyncrun.vim'
 Plug 'ludovicchabant/vim-gutentags'
 Plug 'Chiel92/vim-autoformat'
 Plug 'niklaas/lightline-gitdiff'
@@ -78,8 +78,9 @@ endif
 exe 'set undodir='.expand(s:portable."/undo")
 set undofile
 
-" Write the content before :make
-set autowrite
+" AsyncRun
+let g:asyncrun_save = 2
+let g:asyncrun_exit = 'echo g:asyncrun_status . " " . g:asyncrun_code'
 
 " Hardtime
 let g:hardtime_default_on = 1
@@ -128,8 +129,7 @@ set background=dark
 set t_Co=256
 
 function! LightlineMode()
-    return expand('%') =~# '^fugitive://' ? 'GIT':
-                \ lightline#mode()
+    return expand('%') =~# '^fugitive://' ? 'GIT': lightline#mode()
 endfunction
 function! LightlineAutoformat()
     return get(g:, 'autoformat', 0) ? '=' : ''
