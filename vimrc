@@ -28,7 +28,6 @@ endif
 " Required
 call plug#begin(expand(s:portable.'/plugged'))
 
-Plug 'tpope/vim-vinegar'
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
@@ -39,6 +38,7 @@ Plug 'flazz/vim-colorschemes'
 Plug 'itchyny/lightline.vim'
 Plug 'shinchu/lightline-gruvbox.vim'
 Plug 'skywind3000/asyncrun.vim'
+Plug 'justinmk/vim-dirvish'
 Plug 'ludovicchabant/vim-gutentags'
 Plug 'Chiel92/vim-autoformat'
 Plug 'niklaas/lightline-gitdiff'
@@ -52,7 +52,6 @@ call plug#end()
 "********************************************************************************
 
 set hlsearch
-set nohidden
 set showcmd
 set nowrap
 set cursorline
@@ -64,9 +63,8 @@ set tabstop=4
 set shiftwidth=4
 set expandtab
 
-" Netrw
-let g:netrw_liststyle = 3
-let g:netrw_fastbrowse = 0
+" Abbr
+cnoreabbr ! AsyncRun
 
 " Match angle brackets
 set matchpairs+=<:>
@@ -82,14 +80,17 @@ set undofile
 let g:asyncrun_save = 2
 let g:asyncrun_exit = 'echo g:asyncrun_status . " " . g:asyncrun_code'
 
+" Lightline gitdiff
+let g:lightline#gitdiff#indicator_added = '+'
+let g:lightline#gitdiff#indicator_deleted = '-'
+let g:lightline#gitdiff#indicator_modified = '!'
+let g:lightline#gitdiff#separator=','
+
 " Hardtime
 let g:hardtime_default_on = 1
 let g:list_of_normal_keys = ["h", "j", "k", "l", "<UP>", "<DOWN>", "<LEFT>", "<RIGHT>"]
 let g:list_of_visual_keys = ["h", "j", "k", "l", "<UP>", "<DOWN>", "<LEFT>", "<RIGHT>"]
 let g:hardtime_timeout = 200
-
-command! -nargs=1 Silent
-            \ | execute ':silent !'.<q-args>
 
 " Remember cursor position
 augroup vimrc-remember-cursor-position
@@ -97,6 +98,12 @@ augroup vimrc-remember-cursor-position
     au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$")
                 \ | exe "normal! g`\""
                 \ | endif
+augroup END
+
+" Change comment style for some filetype
+augroup vimrc-commentary-comment-style
+    au!
+    au FileType c,cpp setlocal commentstring=//\ %s
 augroup END
 
 " Fugitive buffer readonly
@@ -114,7 +121,7 @@ augroup vimrc-autoformat
 augroup END
 
 " Force refresh status-line when getentags updates
-augroup getentags-status-line-refresher
+augroup vimrc-getentags-status-line-refresher
     au!
     au User GutentagsUpdating call lightline#update()
     au User GutentagsUpdated call lightline#update()
@@ -131,28 +138,37 @@ set t_Co=256
 function! LightlineMode()
     return expand('%') =~# '^fugitive://' ? 'GIT': lightline#mode()
 endfunction
+
+function! LightlineGitdiff()
+    let info = lightline#gitdiff#get()
+    return info == '' ? '' : '[' . info . ']'
+endfunction
+
+function! LightlineAsyncRun()
+    return g:asyncrun_status == 'running' ? 'running' : ''
+endfunction
+
 function! LightlineAutoformat()
     return get(g:, 'autoformat', 0) ? '=' : ''
 endfunction
+
 let g:lightline = {
             \ 'active': {
             \   'left': [ [ 'mode' ],
             \             [ 'readonly', 'filename', 'modified' ],
-            \             [ 'gitdiff', 'ctags' ] ],
+            \             [ 'gitdiff', 'asyncrun', 'ctags' ] ],
             \   'right': [ [ 'autoformat' ],
             \              [ 'percent' ],
             \              [ 'fileformat', 'fileencoding', 'filetype' ] ]
             \ },
             \ 'component_function': {
             \   'mode': 'LightlineMode',
+            \   'gitdiff': 'LightlineGitdiff',
+            \   'asyncrun': 'LightlineAsyncRun',
             \   'autoformat': 'LightlineAutoformat',
             \ },
             \ 'component_expand': {
-            \   'gitdiff': 'lightline#gitdiff#get',
             \   'ctags': 'gutentags#statusline',
-            \ },
-            \ 'component_type': {
-            \   'gitdiff': 'middle',
             \ },
             \ }
 let g:lightline.colorscheme = 'gruvbox'
