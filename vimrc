@@ -28,22 +28,22 @@ endif
 " Required
 call plug#begin(expand(s:portable.'/plugged'))
 
-Plug 'tpope/vim-sensible'
-Plug 'tpope/vim-commentary'
-Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-surround'
-Plug 'tpope/vim-unimpaired'
-Plug 'tpope/vim-repeat'
+Plug 'Chiel92/vim-autoformat'
+Plug 'fatih/vim-go', {'do': ':GoInstallBinaries'}
 Plug 'flazz/vim-colorschemes'
 Plug 'itchyny/lightline.vim'
-Plug 'shinchu/lightline-gruvbox.vim'
-Plug 'skywind3000/asyncrun.vim'
 Plug 'justinmk/vim-dirvish'
 Plug 'ludovicchabant/vim-gutentags'
-Plug 'Chiel92/vim-autoformat'
 Plug 'niklaas/lightline-gitdiff'
+Plug 'shinchu/lightline-gruvbox.vim'
+Plug 'skywind3000/asyncrun.vim'
 Plug 'takac/vim-hardtime'
-Plug 'fatih/vim-go', {'do': ':GoInstallBinaries'}
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-sensible'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-unimpaired'
 
 call plug#end()
 
