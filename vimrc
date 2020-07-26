@@ -28,13 +28,11 @@ endif
 " Required
 call plug#begin(expand(s:portable.'/plugged'))
 
-Plug 'fatih/vim-go', {'do': ':GoInstallBinaries'}
+Plug 'fatih/vim-go'
 Plug 'flazz/vim-colorschemes'
-Plug 'itchyny/lightline.vim'
 Plug 'justinmk/vim-dirvish'
 Plug 'ludovicchabant/vim-gutentags'
-Plug 'niklaas/lightline-gitdiff'
-Plug 'shinchu/lightline-gruvbox.vim'
+Plug 'mhinz/vim-signify'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'takac/vim-hardtime'
 Plug 'tpope/vim-commentary'
@@ -56,6 +54,9 @@ set nowrap
 set cursorline
 set number relativenumber
 set path=.,,**
+set matchpairs+=<:>
+set signcolumn=no
+set updatetime=100
 
 " Tabs
 set tabstop=4
@@ -64,9 +65,6 @@ set expandtab
 
 " Abbr
 cnoreabbr ! AsyncRun
-
-" Match angle brackets
-set matchpairs+=<:>
 
 " Undo files
 if !isdirectory(expand(s:portable.'/undo'))
@@ -78,12 +76,6 @@ set undofile
 " AsyncRun
 let g:asyncrun_save = 2
 let g:asyncrun_exit = 'echo g:asyncrun_status . " " . g:asyncrun_code'
-
-" Lightline gitdiff
-let g:lightline#gitdiff#indicator_added = '+'
-let g:lightline#gitdiff#indicator_deleted = '-'
-let g:lightline#gitdiff#indicator_modified = '!'
-let g:lightline#gitdiff#separator=','
 
 " Hardtime
 let g:hardtime_default_on = 1
@@ -117,13 +109,6 @@ augroup vimrc-fugitive-buffer-readonly
     au BufReadPost fugitive://* setlocal nomodifiable readonly
 augroup END
 
-" Force refresh status-line when getentags updates
-augroup vimrc-getentags-status-line-refresher
-    au!
-    au User GutentagsUpdating call lightline#update()
-    au User GutentagsUpdated call lightline#update()
-augroup END
-
 "*****************************************************************************
 "" Visual Settings
 "*****************************************************************************
@@ -132,53 +117,61 @@ colorscheme gruvbox
 set background=dark
 set t_Co=256
 
-function! LightlineMode()
-    return expand('%') =~# '^fugitive://' ? 'GIT': lightline#mode()
+function! StatusLineAsyncRun()
+    return g:asyncrun_status ==# 'running' ? '[asyncrun]' : ''
 endfunction
 
-function! LightlineGitdiff()
-    let info = lightline#gitdiff#get()
-    return info !=# '' ? '[' . info . ']' : ''
+function! StatusLineFileFormat()
+    return &ff ==# 'unix' ? '' : ('[' . &ff . ']')
 endfunction
 
-function! LightlineAsyncRun()
-    return g:asyncrun_status == 'running' ? 'running' : ''
+function! StatusLineFileEncoding()
+    return &fenc ==# 'utf-8' ? '' : ('[' . (strlen(&fenc) ? &fenc : 'none') . ']')
 endfunction
 
-let g:lightline = {
-            \ 'active': {
-            \   'left': [ [ 'mode' ],
-            \             [ 'readonly', 'filename', 'modified' ],
-            \             [ 'gitdiff', 'asyncrun', 'ctags' ] ],
-            \   'right': [ [],
-            \              [ 'percent' ],
-            \              [ 'fileformat', 'fileencoding', 'filetype' ] ]
-            \ },
-            \ 'inactive': {
-            \   'left': [ [ 'relativepath' ] ],
-            \   'right': [ [ 'percent' ] ]
-            \ },
-            \ 'tabline': {
-            \   'right': []
-            \ },
-            \ 'component_function': {
-            \   'mode': 'LightlineMode',
-            \   'gitdiff': 'LightlineGitdiff',
-            \   'asyncrun': 'LightlineAsyncRun',
-            \ },
-            \ 'component_expand': {
-            \   'ctags': 'gutentags#statusline',
-            \ },
-            \ 'colorscheme': 'gruvbox',
-            \ }
+function! StatusLine(mode) abort
+    let l:line = ''
+
+    if a:mode ==# 'active'
+        let l:line .= '%1*'
+        let l:line .= ' %f%r'
+        if &ro ==# ''
+            let l:line .= '%m'
+        endif
+        let l:line .= ' '
+        let l:line .= '%2*'
+        let l:line .= ' '
+        let l:line .= '%{sy#repo#get_stats_decorated()}'
+        let l:line .= '%{StatusLineAsyncRun()}'
+        let l:line .= "%{gutentags#statusline('[', ']')}"
+        let l:line .= '%='
+        let l:line .= '%{StatusLineFileFormat()}'
+        let l:line .= '%{StatusLineFileEncoding()}'
+        let l:line .= ' '
+        let l:line .= '%1*'
+        let l:line .= ' %y %P '
+    else
+        let l:line .= '%3*'
+        let l:line .= ' %f%=%P '
+    endif
+
+    return l:line
+endfunction
+
+hi User1 ctermbg=239   ctermfg=245  guibg=#504945   guifg=#928374
+hi User2 ctermbg=237   ctermfg=243  guibg=#3c3836   guifg=#7c6f64
+hi User3 ctermbg=235 ctermfg=245   guibg=#282828 guifg=#928374
+
+set statusline=%!StatusLine('active')
+augroup vimrc-statusline
+    au!
+    au WinEnter * setl statusline=%!StatusLine('active')
+    au WinLeave * setl statusline=%!StatusLine('inactive')
+augroup END
 
 "*****************************************************************************
 "" Key Bindings
 "*****************************************************************************
-
-" Copy/Paste/Cut
-noremap YY "+y<CR>
-noremap XX "+x<CR>
 
 " Switching windows
 noremap <C-j> <C-w>j
