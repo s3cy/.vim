@@ -28,7 +28,6 @@ endif
 " Required
 call plug#begin(expand(s:portable.'/plugged'))
 
-Plug 'Chiel92/vim-autoformat'
 Plug 'fatih/vim-go', {'do': ':GoInstallBinaries'}
 Plug 'flazz/vim-colorschemes'
 Plug 'itchyny/lightline.vim'
@@ -92,6 +91,12 @@ let g:list_of_normal_keys = ["h", "j", "k", "l", "<UP>", "<DOWN>", "<LEFT>", "<R
 let g:list_of_visual_keys = ["h", "j", "k", "l", "<UP>", "<DOWN>", "<LEFT>", "<RIGHT>"]
 let g:hardtime_timeout = 200
 
+" Dirvish
+let g:loaded_netrwPlugin = 1 " disable netrw
+command! -nargs=? -complete=dir Explore Dirvish <args>
+command! -nargs=? -complete=dir Sexplore belowright split | silent Dirvish <args>
+command! -nargs=? -complete=dir Vexplore leftabove vsplit | silent Dirvish <args>
+
 " Remember cursor position
 augroup vimrc-remember-cursor-position
     au!
@@ -110,14 +115,6 @@ augroup END
 augroup vimrc-fugitive-buffer-readonly
     au!
     au BufReadPost fugitive://* setlocal nomodifiable readonly
-augroup END
-
-" Autoformat on save
-augroup vimrc-autoformat
-    au!
-    au BufWrite * if get(g:, 'autoformat', 0)
-                \ | :Autoformat<CR>
-                \ | endif
 augroup END
 
 " Force refresh status-line when getentags updates
@@ -141,15 +138,11 @@ endfunction
 
 function! LightlineGitdiff()
     let info = lightline#gitdiff#get()
-    return info == '' ? '' : '[' . info . ']'
+    return info !=# '' ? '[' . info . ']' : ''
 endfunction
 
 function! LightlineAsyncRun()
     return g:asyncrun_status == 'running' ? 'running' : ''
-endfunction
-
-function! LightlineAutoformat()
-    return get(g:, 'autoformat', 0) ? '=' : ''
 endfunction
 
 let g:lightline = {
@@ -157,21 +150,27 @@ let g:lightline = {
             \   'left': [ [ 'mode' ],
             \             [ 'readonly', 'filename', 'modified' ],
             \             [ 'gitdiff', 'asyncrun', 'ctags' ] ],
-            \   'right': [ [ 'autoformat' ],
+            \   'right': [ [],
             \              [ 'percent' ],
             \              [ 'fileformat', 'fileencoding', 'filetype' ] ]
+            \ },
+            \ 'inactive': {
+            \   'left': [ [ 'relativepath' ] ],
+            \   'right': [ [ 'percent' ] ]
+            \ },
+            \ 'tabline': {
+            \   'right': []
             \ },
             \ 'component_function': {
             \   'mode': 'LightlineMode',
             \   'gitdiff': 'LightlineGitdiff',
             \   'asyncrun': 'LightlineAsyncRun',
-            \   'autoformat': 'LightlineAutoformat',
             \ },
             \ 'component_expand': {
             \   'ctags': 'gutentags#statusline',
             \ },
+            \ 'colorscheme': 'gruvbox',
             \ }
-let g:lightline.colorscheme = 'gruvbox'
 
 "*****************************************************************************
 "" Key Bindings
@@ -199,9 +198,6 @@ nnoremap <silent> <C-n> :nohlsearch<CR>
 
 " Use <esc> to exit terminal insert mode
 tnoremap <esc> <C-\><C-n>
-
-" Toggle autoformat
-nnoremap <silent> == :let g:autoformat = !get(g:, 'autoformat', 0)<CR>
 
 "*****************************************************************************
 "" Go
