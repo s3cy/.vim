@@ -56,7 +56,6 @@ set number relativenumber
 set path=.,,**
 set matchpairs+=<:>
 set signcolumn=no
-set updatetime=100
 
 " Tabs
 set tabstop=4
@@ -117,56 +116,43 @@ colorscheme gruvbox
 set background=dark
 set t_Co=256
 
-function! StatusLineAsyncRun()
-    return g:asyncrun_status ==# 'running' ? '[asyncrun]' : ''
-endfunction
-
-function! StatusLineFileFormat()
-    return &ff ==# 'unix' ? '' : ('[' . &ff . ']')
-endfunction
-
-function! StatusLineFileEncoding()
-    return &fenc ==# 'utf-8' ? '' : ('[' . (strlen(&fenc) ? &fenc : 'none') . ']')
-endfunction
-
-function! StatusLine(mode) abort
-    let l:line = ''
-
-    if a:mode ==# 'active'
-        let l:line .= '%1*'
-        let l:line .= ' %f%r'
-        if &ro ==# ''
-            let l:line .= '%m'
-        endif
-        let l:line .= ' '
-        let l:line .= '%2*'
-        let l:line .= ' '
-        let l:line .= '%{sy#repo#get_stats_decorated()}'
-        let l:line .= '%{StatusLineAsyncRun()}'
-        let l:line .= "%{gutentags#statusline('[', ']')}"
-        let l:line .= '%='
-        let l:line .= '%{StatusLineFileFormat()}'
-        let l:line .= '%{StatusLineFileEncoding()}'
-        let l:line .= ' '
-        let l:line .= '%1*'
-        let l:line .= ' %y %P '
-    else
-        let l:line .= '%3*'
-        let l:line .= ' %f%=%P '
+function! ActiveStatus()
+    let line = ''
+    if &buftype ==# 'terminal'
+        let line .= '%f'
+        let line .= '%=%P'
+        return line
     endif
-
-    return l:line
+    let line .= '%f %r'
+    if &ro ==# ''
+        let line .= '%m'
+    endif
+    let line .= '%#StatusLineNC#'
+    let line .= ' '
+    let line .= '%{sy#repo#get_stats_decorated()}'
+    let line .= g:asyncrun_status ==# 'running' ? '[asyncrun]' : ''
+    let line .= "%{gutentags#statusline('[', ']')}"
+    let line .= '%='
+    if &ff !=# 'unix' || &fenc !=# 'utf-8'
+        let line .= &ff
+        let line .= '[' . (strlen(&fenc) ? &fenc : 'none') . ']'
+    endif
+    let line .= ' %y %P'
+    return line
 endfunction
 
-hi User1 ctermbg=239   ctermfg=245  guibg=#504945   guifg=#928374
-hi User2 ctermbg=237   ctermfg=243  guibg=#3c3836   guifg=#7c6f64
-hi User3 ctermbg=235 ctermfg=245   guibg=#282828 guifg=#928374
+function! InactiveStatus()
+    let line = ''
+    let line .= '%f%=%P'
+    return line
+endfunction
 
-set statusline=%!StatusLine('active')
+set statusline=%!ActiveStatus()
 augroup vimrc-statusline
     au!
-    au WinEnter * setl statusline=%!StatusLine('active')
-    au WinLeave * setl statusline=%!StatusLine('inactive')
+    au WinEnter * setlocal statusline=%!ActiveStatus()
+    au WinLeave * setlocal statusline=%!InactiveStatus()
+    au User GutentagsUpdated setlocal statusline=%!ActiveStatus()
 augroup END
 
 "*****************************************************************************
