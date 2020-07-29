@@ -194,7 +194,7 @@ let g:lsp_diagnostics_enabled = 0
 let g:lsp_auto_enable = 0
 let s:lsp_servers = []
 let s:lsp_allowlist = []
-let g:lsp_confirmed = 0
+let s:lsp_confirmed = 0
 
 func! SetLspTagFunc() abort
     let g:gutentags_enabled = 0
@@ -238,11 +238,11 @@ func! GetLspServerStatus() abort
 endfunc
 
 func! ConfirmToEnableLsp()
-    if g:lsp_confirmed == 0 && index(s:lsp_allowlist, &ft) >= 0
+    if s:lsp_confirmed == 0 && index(s:lsp_allowlist, &ft) >= 0
         if confirm('LSP is available, enable it?', "&yes\n&no", 1) == 1
             call lsp#enable()
         endif
-        let g:lsp_confirmed = 1
+        let s:lsp_confirmed = 1
     endif
 endfunc
 
