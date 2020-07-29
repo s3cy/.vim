@@ -22,17 +22,17 @@ if !filereadable(vimplug_exists)
     echo ""
     silent exec "!\curl --insecure -fLo " . vimplug_exists . " --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
 
-    autocmd VimEnter * PlugInstall
+    au VimEnter * PlugInstall
 endif
 
 " Required
 call plug#begin(expand(s:portable.'/plugged'))
 
-Plug 'fatih/vim-go'
 Plug 'flazz/vim-colorschemes'
 Plug 'justinmk/vim-dirvish'
 Plug 'ludovicchabant/vim-gutentags'
 Plug 'mhinz/vim-signify'
+Plug 'prabirshrestha/vim-lsp'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'takac/vim-hardtime'
 Plug 'tpope/vim-commentary'
@@ -116,7 +116,7 @@ colorscheme gruvbox
 set background=dark
 set t_Co=256
 
-function! ActiveStatus()
+function! ActiveStatus() abort
     let line = ''
     if &buftype ==# 'terminal'
         let line .= '%f'
@@ -141,7 +141,7 @@ function! ActiveStatus()
     return line
 endfunction
 
-function! InactiveStatus()
+function! InactiveStatus() abort
     let line = ''
     let line .= '%f%=%P'
     return line
@@ -179,17 +179,42 @@ nnoremap <silent> <C-n> :nohlsearch<CR>
 tnoremap <esc> <C-\><C-n>
 
 "*****************************************************************************
-"" Go
+"" Lsp
 "*****************************************************************************
 
-au BufNewFile,BufRead *.go setlocal noexpandtab tabstop=4 shiftwidth=4 softtabstop=4
+if executable('gopls')
+    au User lsp_setup call lsp#register_server({
+            \ 'name': 'gopls',
+            \ 'cmd': { server_info->['gopls'] },
+            \ 'allowlist': ['go'] })
+endif
 
-let g:go_textobj_enabled = 0
-let g:go_def_mapping_enabled = 0
-let g:go_doc_keywordprg_enabled = 0
+function! SetLspTagFunc() abort
+    let g:gutentags_enabled = 0
+    if exists('+tagfunc')
+        setlocal tagfunc=lsp#tagfunc
+    else
+        nmap <buffer> <C-]> <plug>(lsp-definition)
+    endif
+endfunc
 
-augroup go
+function! OnLspBufferEnabled() abort
+    setlocal completeopt=menu
+    setlocal omnifunc=lsp#complete
+    call SetLspTagFunc()
+    nmap <buffer> gr <plug>(lsp-references)
+    nmap <buffer> gi <plug>(lsp-implementation)
+    nmap <buffer> gt <plug>(lsp-type-definition)
+    nmap <buffer> <leader>rn <plug>(lsp-rename)
+    nmap <buffer> K <plug>(lsp-hover)
+    nmap <buffer> ga <plug>(lsp-code-action)
+    au BufWritePre <buffer> LspDocumentFormatSync
+endfunction
+
+augroup vimrc-lsp
     au!
-    au Filetype go nmap gd <Plug>(go-def)
-    au Filetype go nmap gh <Plug>(go-info)
+    au User lsp_buffer_enabled call OnLspBufferEnabled()
 augroup END
+
+let g:lsp_diagnostics_enabled = 0
+let g:lsp_textprop_enabled = 0
