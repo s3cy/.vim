@@ -57,6 +57,8 @@ set path=.,,**
 set matchpairs+=<:>
 set signcolumn=no
 
+let g:go_highlight_trailing_whitespace_error = 0
+
 " Tabs
 set tabstop=4
 set shiftwidth=4
@@ -88,6 +90,9 @@ command! -nargs=? -complete=dir Explore Dirvish <args>
 command! -nargs=? -complete=dir Sexplore belowright split | silent Dirvish <args>
 command! -nargs=? -complete=dir Vexplore leftabove vsplit | silent Dirvish <args>
 
+" Gutentags
+let g:gutentags_file_list_command = 'git ls-files'
+
 " Remember cursor position
 augroup vimrc-remember-cursor-position
     au!
@@ -116,36 +121,38 @@ colorscheme gruvbox
 set background=dark
 set t_Co=256
 
-function! ActiveStatus() abort
-    let line = ''
+func! ActiveStatus() abort
+    let l:line = ''
     if &buftype ==# 'terminal'
-        let line .= '%f'
-        let line .= '%=%P'
-        return line
+        let l:line .= '%f'
+        let l:line .= '%=%P'
+        return l:line
     endif
-    let line .= '%f %r'
+    let l:line .= '%f %r'
     if &ro ==# ''
-        let line .= '%m'
+        let l:line .= '%m'
     endif
-    let line .= '%#StatusLineNC#'
-    let line .= ' '
-    let line .= '%{sy#repo#get_stats_decorated()}'
-    let line .= g:asyncrun_status ==# 'running' ? '[asyncrun]' : ''
-    let line .= "%{gutentags#statusline('[', ']')}"
-    let line .= '%='
+    let l:line .= '%#StatusLineNC#'
+    let l:line .= ' '
+    let l:line .= '%{sy#repo#get_stats_decorated()}'
+    let l:line .= g:asyncrun_status ==# 'running' ? '[asyncrun]' : ''
+    let l:line .= "%{gutentags#statusline('[', ']')}"
+    let l:line .= '%='
     if &ff !=# 'unix' || &fenc !=# 'utf-8'
-        let line .= &ff
-        let line .= '[' . (strlen(&fenc) ? &fenc : 'none') . ']'
+        let l:line .= &ff
+        let l:line .= '[' . (strlen(&fenc) ? &fenc : 'none') . ']'
     endif
-    let line .= ' %y %P'
-    return line
-endfunction
+    let l:line .= ' '
+    let l:line .= GetLspServerStatus()
+    let l:line .= '%y %P'
+    return l:line
+endfunc
 
-function! InactiveStatus() abort
-    let line = ''
-    let line .= '%f%=%P'
-    return line
-endfunction
+func! InactiveStatus() abort
+    let l:line = ''
+    let l:line .= '%f%=%P'
+    return l:line
+endfunc
 
 set statusline=%!ActiveStatus()
 augroup vimrc-statusline
@@ -153,6 +160,7 @@ augroup vimrc-statusline
     au WinEnter * setlocal statusline=%!ActiveStatus()
     au WinLeave * setlocal statusline=%!InactiveStatus()
     au User GutentagsUpdated setlocal statusline=%!ActiveStatus()
+    au User lsp_server_exit setlocal statusline=%!ActiveStatus()
 augroup END
 
 "*****************************************************************************
@@ -182,14 +190,13 @@ tnoremap <esc> <C-\><C-n>
 "" Lsp
 "*****************************************************************************
 
-if executable('gopls')
-    au User lsp_setup call lsp#register_server({
-            \ 'name': 'gopls',
-            \ 'cmd': { server_info->['gopls'] },
-            \ 'allowlist': ['go'] })
-endif
+let g:lsp_diagnostics_enabled = 0
+let g:lsp_auto_enable = 0
+let s:lsp_servers = []
+let s:lsp_allowlist = []
+let g:lsp_confirmed = 0
 
-function! SetLspTagFunc() abort
+func! SetLspTagFunc() abort
     let g:gutentags_enabled = 0
     if exists('+tagfunc')
         setlocal tagfunc=lsp#tagfunc
@@ -198,23 +205,67 @@ function! SetLspTagFunc() abort
     endif
 endfunc
 
-function! OnLspBufferEnabled() abort
-    setlocal completeopt=menu
+func! OnLspBufferEnabled() abort
     setlocal omnifunc=lsp#complete
     call SetLspTagFunc()
     nmap <buffer> gr <plug>(lsp-references)
     nmap <buffer> gi <plug>(lsp-implementation)
-    nmap <buffer> gt <plug>(lsp-type-definition)
     nmap <buffer> <leader>rn <plug>(lsp-rename)
     nmap <buffer> K <plug>(lsp-hover)
     nmap <buffer> ga <plug>(lsp-code-action)
     au BufWritePre <buffer> LspDocumentFormatSync
-endfunction
+endfunc
+
+func! OnLspServerInit() abort
+    let l:server_names = lsp#get_server_names()
+    for l:server_name in l:server_names
+        if index(s:lsp_servers, l:server_name) < 0
+            let l:server = lsp#get_server_info(l:server_name)
+            if has_key(l:server, 'allowlist') && index(l:server['allowlist'], &ft) >= 0
+                call add(s:lsp_servers, l:server_name)
+            endif
+        endif
+    endfor
+endfunc
+
+func! GetLspServerStatus() abort
+    let l:statuses = []
+    for l:server in s:lsp_servers
+        let l:status = lsp#get_server_status(l:server)
+        call add(l:statuses, l:status == 'running' ? l:server : l:server . ':' . l:status)
+    endfor
+    return join(l:statuses, ',')
+endfunc
+
+func! ConfirmToEnableLsp()
+    if g:lsp_confirmed == 0 && index(s:lsp_allowlist, &ft) >= 0
+        if confirm('LSP is available, enable it?', "&yes\n&no", 1) == 1
+            call lsp#enable()
+        endif
+        let g:lsp_confirmed = 1
+    endif
+endfunc
 
 augroup vimrc-lsp
     au!
     au User lsp_buffer_enabled call OnLspBufferEnabled()
-augroup END
+    au User lsp_server_init call OnLspServerInit()
 
-let g:lsp_diagnostics_enabled = 0
-let g:lsp_textprop_enabled = 0
+    if executable('gopls')
+        au User lsp_setup call lsp#register_server({
+                    \ 'name': 'gopls',
+                    \ 'cmd': { server_info->['gopls'] },
+                    \ 'allowlist': ['go'] })
+        let s:lsp_allowlist += ['go']
+    endif
+
+    if executable('rls')
+        au User lsp_setup call lsp#register_server({
+                    \ 'name': 'rls',
+                    \ 'cmd': { server_info->['rustup', 'run', 'stable', 'rls']},
+                    \ 'allowlist': ['rust'] })
+        let s:lsp_allowlist += ['rust']
+    endif
+
+    au BufReadPost * call ConfirmToEnableLsp()
+augroup END
