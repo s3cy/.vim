@@ -51,7 +51,6 @@ call plug#end()
 set hlsearch
 set showcmd
 set nowrap
-set cursorline
 set number relativenumber
 set path=.,,**
 set matchpairs+=<:>
@@ -101,6 +100,13 @@ augroup vimrc-remember-cursor-position
                 \ | endif
 augroup END
 
+" Automatically set cursorline
+augroup vimrc-auto-cursorline
+    au!
+    au VimEnter,WinEnter * set cursorline
+    au WinLeave * set nocursorline
+augroup END
+
 " Change comment style for some filetype
 augroup vimrc-commentary-comment-style
     au!
@@ -117,10 +123,12 @@ augroup END
 "" Visual Settings
 "*****************************************************************************
 
+" Color
 colorscheme gruvbox
 set background=dark
 set t_Co=256
 
+" Statusline
 func! ActiveStatus() abort
     let l:line = ''
     if &buftype ==# 'terminal'
@@ -154,10 +162,9 @@ func! InactiveStatus() abort
     return l:line
 endfunc
 
-set statusline=%!ActiveStatus()
 augroup vimrc-statusline
     au!
-    au WinEnter * setlocal statusline=%!ActiveStatus()
+    au VimEnter,WinEnter * setlocal statusline=%!ActiveStatus()
     au WinLeave * setlocal statusline=%!InactiveStatus()
     au User GutentagsUpdated setlocal statusline=%!ActiveStatus()
     au User lsp_server_exit setlocal statusline=%!ActiveStatus()
