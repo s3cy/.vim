@@ -39,6 +39,7 @@ Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-sensible'
+Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-unimpaired'
 
@@ -52,16 +53,12 @@ set hlsearch
 set showcmd
 set nowrap
 set number relativenumber
+set signcolumn=no
+set tabstop=4
 set path=.,,**
 set matchpairs+=<:>
-set signcolumn=no
 
 let g:go_highlight_trailing_whitespace_error = 0
-
-" Tabs
-set tabstop=4
-set shiftwidth=4
-set expandtab
 
 " Abbr
 cnoreabbr ! AsyncRun
