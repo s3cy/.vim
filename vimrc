@@ -55,8 +55,10 @@ set nowrap
 set number relativenumber
 set signcolumn=no
 set tabstop=4
+set shiftwidth=4
 set path=.,,**
 set matchpairs+=<:>
+set cscopequickfix=g-,s-,c-,f-,i-,t-,d-,e-,a-
 
 let g:go_highlight_trailing_whitespace_error = 0
 
@@ -64,10 +66,11 @@ let g:go_highlight_trailing_whitespace_error = 0
 cnoreabbr ! AsyncRun
 
 " Undo files
-if !isdirectory(expand(s:portable.'/undo'))
-    call mkdir(expand(s:portable.'/undo'), '', 0700)
+let s:undo_dir = expand(s:portable . '/.cache/undo')
+if !isdirectory(s:undo_dir)
+    call mkdir(s:undo_dir, 'p', 0700)
 endif
-exe 'set undodir='.expand(s:portable."/undo")
+exe 'set undodir=' . s:undo_dir
 set undofile
 
 " AsyncRun
@@ -88,6 +91,18 @@ command! -nargs=? -complete=dir Vexplore leftabove vsplit | silent Dirvish <args
 
 " Gutentags
 let g:gutentags_file_list_command = 'git ls-files'
+let g:gutentags_modules = []
+if executable('ctags')
+    let g:gutentags_modules += ['ctags']
+endif
+if executable('gtags-cscope')
+    let g:gutentags_modules += ['gtags_cscope']
+endif
+let s:tags_dir = expand(s:portable . '/.cache/tags')
+if !isdirectory(s:tags_dir)
+    call mkdir(s:tags_dir, 'p', 0700)
+endif
+let g:gutentags_cache_dir = s:tags_dir
 
 " Remember cursor position
 augroup vimrc-remember-cursor-position
@@ -123,7 +138,6 @@ augroup END
 " Color
 colorscheme gruvbox
 set background=dark
-set t_Co=256
 
 " Statusline
 func! ActiveStatus() abort
@@ -161,7 +175,8 @@ endfunc
 
 augroup vimrc-statusline
     au!
-    au VimEnter,WinEnter * setlocal statusline=%!ActiveStatus()
+    au VimEnter * set statusline=%!ActiveStatus()
+    au WinEnter * setlocal statusline=%!ActiveStatus()
     au WinLeave * setlocal statusline=%!InactiveStatus()
     au User GutentagsUpdated setlocal statusline=%!ActiveStatus()
     au User lsp_server_exit setlocal statusline=%!ActiveStatus()
@@ -190,6 +205,35 @@ nnoremap <silent> <C-n> :nohlsearch<CR>
 " Use <esc> to exit terminal insert mode
 tnoremap <esc> <C-\><C-n>
 
+" Cscope
+function! CscopeFind(cmd, query, search_term)
+    exe 'normal! mY'
+    cclose
+
+    let l:current_file = @%
+    let l:view = winsaveview()
+    let l:search_query = a:cmd . " find " . a:query . " " . a:search_term
+    let g:debug = l:search_query
+
+    let v:errmsg = ''
+    silent! keepjumps exe search_query
+    if strlen(v:errmsg) > 0 | echohl ErrorMsg | echo(v:errmsg) | echohl None | endif
+
+    if len(getqflist()) > 1
+        if l:current_file != @%
+            exe 'normal! `Y'
+            bdelete #
+        endif
+        call winrestview(l:view)
+
+        botright copen
+    endif
+endfunction
+nnoremap gr :call CscopeFind('cs', 's', expand('<cword>'))<CR>
+nnoremap gR :call CscopeFind('cs', 'c', expand('<cword>'))<CR>
+nnoremap gF :call CscopeFind('cs', 'f', expand('<cfile>'))<CR>
+nnoremap gI :call CscopeFind('cs', 'i', expand('<cfile>'))<CR>
+
 "*****************************************************************************
 "" Lsp
 "*****************************************************************************
@@ -201,7 +245,6 @@ let s:lsp_allowlist = []
 let s:lsp_confirmed = 0
 
 func! SetLspTagFunc() abort
-    let g:gutentags_enabled = 0
     if exists('+tagfunc')
         setlocal tagfunc=lsp#tagfunc
     else
