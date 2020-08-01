@@ -15,12 +15,13 @@ let vimplug_exists=expand(s:portable.'/autoload/plug.vim')
 
 if !filereadable(vimplug_exists)
     if !executable("curl")
-        echoerr "You have to install curl or first install vim-plug yourself!"
-        execute "q!"
+        echoerr 'You have to install curl or first install vim-plug yourself!'
+        execute 'q!'
     endif
-    echo "Installing Vim-Plug..."
-    echo ""
-    silent exec "!\curl --insecure -fLo " . vimplug_exists . " --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+    echo 'Installing Vim-Plug...'
+    echo ''
+    silent exec '!\curl --insecure -fLo ' . vimplug_exists .
+                \ ' --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 
     au VimEnter * PlugInstall
 endif
@@ -62,9 +63,6 @@ set cscopequickfix=g-,s-,c-,f-,i-,t-,d-,e-,a-
 
 let g:go_highlight_trailing_whitespace_error = 0
 
-" Abbr
-cnoreabbr ! AsyncRun
-
 " Undo files
 let s:undo_dir = expand(s:portable . '/.cache/undo')
 if !isdirectory(s:undo_dir)
@@ -74,6 +72,7 @@ exe 'set undodir=' . s:undo_dir
 set undofile
 
 " AsyncRun
+cnoreabbr ! AsyncRun
 let g:asyncrun_save = 2
 let g:asyncrun_exit = 'echo g:asyncrun_status . " " . g:asyncrun_code'
 
@@ -113,9 +112,10 @@ augroup vimrc-remember-cursor-position
 augroup END
 
 " Automatically set cursorline
+set cursorline
 augroup vimrc-auto-cursorline
     au!
-    au VimEnter,WinEnter * set cursorline
+    au WinEnter * set cursorline
     au WinLeave * set nocursorline
 augroup END
 
@@ -173,9 +173,9 @@ func! InactiveStatus() abort
     return l:line
 endfunc
 
+set statusline=%!ActiveStatus()
 augroup vimrc-statusline
     au!
-    au VimEnter * set statusline=%!ActiveStatus()
     au WinEnter * setlocal statusline=%!ActiveStatus()
     au WinLeave * setlocal statusline=%!InactiveStatus()
     au User GutentagsUpdated setlocal statusline=%!ActiveStatus()
@@ -192,6 +192,10 @@ noremap <C-k> <C-w>k
 noremap <C-l> <C-w>l
 noremap <C-h> <C-w>h
 
+" Switching tabs
+nnoremap <C-q> <C-w>gt
+tnoremap <C-q> <C-w>gt
+
 " Shell-style command moves
 cnoremap <C-a> <HOME>
 cnoremap <C-f> <Right>
@@ -202,8 +206,8 @@ cnoremap <Esc>f <S-Right>
 " Clear the highlighting of :set hlsearch
 nnoremap <silent> <C-n> :nohlsearch<CR>
 
-" Use <esc> to exit terminal insert mode
-tnoremap <esc> <C-\><C-n>
+" Double tab esc to exit terminal insert mode
+tnoremap <esc><esc> <C-\><C-n>
 
 " Cscope
 function! CscopeFind(cmd, query, search_term)
