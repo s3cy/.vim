@@ -29,9 +29,9 @@ endif
 " Required
 call plug#begin(expand(s:portable.'/plugged'))
 
-Plug 'flazz/vim-colorschemes'
 Plug 'justinmk/vim-dirvish'
 Plug 'ludovicchabant/vim-gutentags'
+Plug 'morhetz/gruvbox'
 Plug 'niklaas/lightline-gitdiff'
 Plug 'prabirshrestha/vim-lsp'
 Plug 'skywind3000/asyncrun.vim'
