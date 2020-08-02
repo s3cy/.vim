@@ -54,7 +54,6 @@ set hlsearch
 set showcmd
 set nowrap
 set number relativenumber
-set signcolumn=no
 set tabstop=4
 set shiftwidth=4
 set path=.,,**
@@ -253,15 +252,60 @@ set tabline=%!Tabline()
 " Key Bindings
 "*****************************************************************************
 
-" Switching windows
-noremap <C-j> <C-w>j
-noremap <C-k> <C-w>k
-noremap <C-l> <C-w>l
-noremap <C-h> <C-w>h
+" `Alt-w` is the universal window swiching key for both regular buffers and
+" terminal buffers.
+nnoremap <Esc>w <C-w>
+nnoremap <Esc>w<Esc>b <C-w>b
+nnoremap <Esc>w<Esc>c <C-w>c
+nnoremap <Esc>w<Esc>d <C-w>d
+nnoremap <Esc>w<Esc>f <C-w>f
+nmap <Esc>w<Esc>g <C-w>g
+nnoremap <Esc>w<Esc>h <C-w>h
+nnoremap <Esc>w<Esc>i <C-w>i
+nnoremap <Esc>w<Esc>j <C-w>j
+nnoremap <Esc>w<Esc>k <C-w>k
+nnoremap <Esc>w<Esc>l <C-w>l
+nnoremap <Esc>w<Esc>n <C-w>n
+nnoremap <Esc>w<Esc>o <C-w>o
+nnoremap <Esc>w<Esc>p <C-w>p
+nnoremap <Esc>w<Esc>q <C-w>q
+nnoremap <Esc>w<Esc>r <C-w>r
+nnoremap <Esc>w<Esc>s <C-w>s
+nnoremap <Esc>w<Esc>t <C-w>t
+nnoremap <Esc>w<Esc>v <C-w>v
+nnoremap <Esc>w<Esc>w <C-w>w
+nnoremap <Esc>w<Esc>x <C-w>x
+nnoremap <Esc>w<Esc>z <C-w>z
+nnoremap <Esc>w<Esc>] <C-w>]
+nnoremap <Esc>w<Esc>^ <C-w>^
+nnoremap <Esc>w<Esc>_ <C-w>_
 
-" Switching tabs
-nnoremap <C-q> <C-w>gt
-tnoremap <C-q> <C-w>gt
+set termwinkey=<C-_>
+tnoremap <Esc>w <C-_>
+tnoremap <Esc>w<Esc>b <C-_>b
+tnoremap <Esc>w<Esc>c <C-_>c
+tnoremap <Esc>w<Esc>d <C-_>d
+tnoremap <Esc>w<Esc>f <C-_>f
+tmap <Esc>w<Esc>g <C-_>g
+tnoremap <Esc>w<Esc>h <C-_>h
+tnoremap <Esc>w<Esc>i <C-_>i
+tnoremap <Esc>w<Esc>j <C-_>j
+tnoremap <Esc>w<Esc>k <C-_>k
+tnoremap <Esc>w<Esc>l <C-_>l
+tnoremap <Esc>w<Esc>n <C-_>n
+tnoremap <Esc>w<Esc>o <C-_>o
+tnoremap <Esc>w<Esc>p <C-_>p
+tnoremap <Esc>w<Esc>q <C-_>q
+tnoremap <Esc>w<Esc>r <C-_>r
+tnoremap <Esc>w<Esc>s <C-_>s
+tnoremap <Esc>w<Esc>t <C-_>t
+tnoremap <Esc>w<Esc>v <C-_>v
+tnoremap <Esc>w<Esc>w <C-_>w
+tnoremap <Esc>w<Esc>x <C-_>x
+tnoremap <Esc>w<Esc>z <C-_>z
+tnoremap <Esc>w<Esc>] <C-_>]
+tnoremap <Esc>w<Esc>^ <C-_>^
+tnoremap <Esc>w<Esc>_ <C-_>_
 
 " Shell-style command moves
 cnoremap <C-a> <HOME>
@@ -270,11 +314,33 @@ cnoremap <C-b> <Left>
 cnoremap <Esc>b <S-Left>
 cnoremap <Esc>f <S-Right>
 
+" Faster window switching
+nnoremap <Esc>j <C-w>j
+nnoremap <Esc>k <C-w>k
+nnoremap <Esc>l <C-w>l
+nnoremap <Esc>h <C-w>h
+nnoremap <Esc>q <C-w>q
+nnoremap <Esc>s <C-w>s
+nnoremap <Esc>v <C-w>v
+tnoremap <Esc>j <C-_>j
+tnoremap <Esc>k <C-_>k
+tnoremap <Esc>l <C-_>l
+tnoremap <Esc>q <C-_>q
+tnoremap <Esc>h <C-_>h
+tnoremap <Esc>s <C-_>s
+tnoremap <Esc>v <C-_>v
+
+" Faster tab switching
+nnoremap <Esc>t <C-w>gt
+nnoremap <Esc>T <C-w>T
+tnoremap <Esc>t <C-_>gt
+tnoremap <Esc>T <C-_>T
+
 " Clear the highlighting of :set hlsearch
 nnoremap <silent> <C-n> :nohlsearch<CR>
 
 " Double tab esc to exit terminal insert mode
-tnoremap <esc><esc> <C-\><C-n>
+tnoremap <Esc><Esc> <C-\><C-n>
 
 " Cscope
 func! CscopeFind(cmd, query, search_term)
