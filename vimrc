@@ -160,10 +160,11 @@ augroup vimrc-auto-cursorline
     au WinLeave * set nocursorline
 augroup END
 
-" Change comment style for some filetype
-augroup vimrc-commentary-comment-style
+" File type related
+augroup vimrc-filetype
     au!
     au FileType c,cpp setlocal commentstring=//\ %s
+    au FileType qf setlocal wrap
 augroup END
 
 " Fugitive buffer readonly
