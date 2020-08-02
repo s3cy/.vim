@@ -168,7 +168,7 @@ colorscheme gruvbox
 set background=dark
 
 " Statusline
-func! ActiveStatus() abort
+func! ActiveStatusline() abort
     let l:line = ''
     if &buftype ==# 'terminal'
         let l:line .= '%f'
@@ -195,20 +195,45 @@ func! ActiveStatus() abort
     return l:line
 endfunc
 
-func! InactiveStatus() abort
+func! InactiveStatusline() abort
     let l:line = ''
     let l:line .= '%f%=%P'
     return l:line
 endfunc
 
-set statusline=%!ActiveStatus()
+set statusline=%!ActiveStatusline()
 augroup vimrc-statusline
     au!
-    au WinEnter * setlocal statusline=%!ActiveStatus()
-    au WinLeave * setlocal statusline=%!InactiveStatus()
-    au User GutentagsUpdated setlocal statusline=%!ActiveStatus()
-    au User lsp_server_exit setlocal statusline=%!ActiveStatus()
+    au WinEnter * setlocal statusline=%!ActiveStatusline()
+    au WinLeave * setlocal statusline=%!InactiveStatusline()
+    au User GutentagsUpdated setlocal statusline=%!ActiveStatusline()
+    au User lsp_server_exit setlocal statusline=%!ActiveStatusline()
 augroup END
+
+" Tabline
+function! Tabline()
+    let l:line = ''
+    for i in range(tabpagenr('$'))
+        let l:tab = i + 1
+        let l:winnr = tabpagewinnr(l:tab)
+        let l:buflist = tabpagebuflist(l:tab)
+        let l:bufnr = l:buflist[winnr - 1]
+        let l:bufname = bufname(l:bufnr)
+        let l:bufmodified = getbufvar(l:bufnr, "&mod")
+
+        let l:line .= '%' . l:tab . 'T'
+        let l:line .= (l:tab == tabpagenr() ? '%#TabLineSel#' : '%#TabLine#')
+        let l:line .= ' ' . l:tab . '|'
+        if len(l:buflist) == 1
+            let l:line .= (l:bufname !=# '' ? fnamemodify(l:bufname, ':t') : 'No Name')
+        else
+            let l:line .= len(l:buflist) . '..'
+        endif
+    endfor
+
+    return l:line
+endfunction
+set tabline=%!Tabline()
 
 "*****************************************************************************
 "" Key Bindings
