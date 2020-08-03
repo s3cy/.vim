@@ -33,6 +33,7 @@ Plug 'justinmk/vim-dirvish'
 Plug 'ludovicchabant/vim-gutentags'
 Plug 'morhetz/gruvbox'
 Plug 'niklaas/lightline-gitdiff'
+Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'prabirshrestha/vim-lsp'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'takac/vim-hardtime'
@@ -180,6 +181,7 @@ augroup END
 " Color
 colorscheme gruvbox
 set background=dark
+set t_Co=256
 
 " Statusline
 func! ActiveStatusline() abort
@@ -435,6 +437,14 @@ augroup vimrc-lsp
     au!
     au User lsp_buffer_enabled call OnLspBufferEnabled()
     au User lsp_server_init call OnLspServerInit()
+
+    if executable('clangd')
+        au User lsp_setup call lsp#register_server({
+                    \ 'name': 'clangd',
+                    \ 'cmd': { server_info->['clangd', '-background-index'] },
+                    \ 'allowlist': ['c', 'cpp'] })
+        let s:lsp_allowlist += ['c', 'cpp']
+    endif
 
     if executable('gopls')
         au User lsp_setup call lsp#register_server({
