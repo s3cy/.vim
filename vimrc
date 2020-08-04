@@ -6,46 +6,7 @@ set nocompatible
 let &runtimepath = printf('%s/vimfiles,%s,%s/vimfiles/after', $VIM, $VIMRUNTIME, $VIM)
 let s:portable = expand('<sfile>:p:h')
 let &runtimepath = printf('%s,%s,%s/after', s:portable, &runtimepath, s:portable)
-
-"********************************************************************************
-" Vim-Plug core
-"********************************************************************************
-
-let vimplug_exists=expand(s:portable.'/autoload/plug.vim')
-
-if !filereadable(vimplug_exists)
-    if !executable("curl")
-        echoerr 'You have to install curl or first install vim-plug yourself!'
-        execute 'q!'
-    endif
-    echo 'Installing Vim-Plug...'
-    echo ''
-    silent exec '!\curl --insecure -fLo ' . vimplug_exists .
-                \ ' --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-
-    au VimEnter * PlugInstall
-endif
-
-" Required
-call plug#begin(expand(s:portable.'/plugged'))
-
-Plug 'justinmk/vim-dirvish'
-Plug 'ludovicchabant/vim-gutentags'
-Plug 'morhetz/gruvbox'
-Plug 'niklaas/lightline-gitdiff'
-Plug 'octol/vim-cpp-enhanced-highlight'
-Plug 'prabirshrestha/vim-lsp'
-Plug 'skywind3000/asyncrun.vim'
-Plug 'takac/vim-hardtime'
-Plug 'tpope/vim-commentary'
-Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-sensible'
-Plug 'tpope/vim-sleuth'
-Plug 'tpope/vim-surround'
-Plug 'tpope/vim-unimpaired'
-
-call plug#end()
+let &packpath = &runtimepath
 
 "********************************************************************************
 " Basic Setup
@@ -99,7 +60,7 @@ command! -nargs=? -complete=dir Vexplore leftabove vsplit | silent Dirvish <args
 " Gutentags
 let g:gutentags_file_list_command = 'git ls-files'
 let g:gutentags_modules = []
-if executable('ctags')
+if executable('ctags') 
     let g:gutentags_modules += ['ctags']
 endif
 if executable('gtags-cscope')
@@ -426,7 +387,7 @@ endfunc
 
 func! ConfirmToEnableLsp()
     if s:lsp_confirmed == 0 && index(s:lsp_allowlist, &ft) >= 0
-        if confirm('LSP is available, enable it?', "&yes\n&no", 1) == 1
+        if confirm('LSP is available, enable it?', "&yes\n&no", 1) == 1 
             call lsp#enable()
         endif
         let s:lsp_confirmed = 1
@@ -447,7 +408,7 @@ augroup vimrc-lsp
     endif
 
     if executable('gopls')
-        au User lsp_setup call lsp#register_server({
+        au User lsp_setup call lsp#register_server({ 
                     \ 'name': 'gopls',
                     \ 'cmd': { server_info->['gopls'] },
                     \ 'allowlist': ['go'] })
@@ -464,3 +425,4 @@ augroup vimrc-lsp
 
     au BufReadPost * call ConfirmToEnableLsp()
 augroup END
+
