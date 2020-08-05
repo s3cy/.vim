@@ -423,6 +423,6 @@ augroup vimrc-lsp
         let s:lsp_allowlist += ['rust']
     endif
 
-    au BufReadPost * call ConfirmToEnableLsp()
+    au FileType * call ConfirmToEnableLsp()
 augroup END
 
