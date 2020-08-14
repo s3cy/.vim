@@ -129,12 +129,6 @@ augroup vimrc-filetype
     au FileType qf setlocal wrap
 augroup END
 
-" Fugitive buffer readonly
-augroup vimrc-fugitive-buffer-readonly
-    au!
-    au BufReadPost fugitive://* setlocal nomodifiable readonly
-augroup END
-
 "*****************************************************************************
 " Visual Settings
 "*****************************************************************************
@@ -295,10 +289,10 @@ tnoremap <Esc>s <C-_>s
 tnoremap <Esc>v <C-_>v
 
 " Faster tab switching
-nnoremap <Esc>t <C-w>gt
-nnoremap <Esc>T <C-w>T
-tnoremap <Esc>t <C-_>gt
-tnoremap <Esc>T <C-_>T
+nnoremap <Esc>t :tabnext<CR>
+nnoremap <Esc>T :tabprevious<CR>
+tnoremap <Esc>t <C-_>:tabnext<CR>
+tnoremap <Esc>T <C-_>:tabprevious<CR>
 
 " Clear the highlighting of :set hlsearch
 nnoremap <silent> <C-n> :nohlsearch<CR>
