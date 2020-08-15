@@ -313,6 +313,11 @@ nnoremap <silent> <C-n> :nohlsearch<CR>
 " Double tab esc to exit terminal insert mode
 tnoremap <Esc><Esc> <C-\><C-n>
 
+" `Q` to edit the default register; `"aQ` to edit register 'a'.
+" TIPS: macros are stored in registers.
+nnoremap Q :<C-u><C-r><C-r>='let @' . v:register .
+            \ ' = ' . string(getreg(v:register))<CR><C-f><LEFT>
+
 " Cscope
 func! CscopeFind(cmd, query, search_term)
     exe 'normal! mY'
