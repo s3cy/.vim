@@ -47,8 +47,8 @@ let g:asyncrun_exit = 'echo g:asyncrun_status . " " . g:asyncrun_code'
 
 " Hardtime
 let g:hardtime_default_on = 1
-let g:list_of_normal_keys = ["h", "j", "k", "l", "<UP>", "<DOWN>", "<LEFT>", "<RIGHT>"]
-let g:list_of_visual_keys = ["h", "j", "k", "l", "<UP>", "<DOWN>", "<LEFT>", "<RIGHT>"]
+let g:list_of_normal_keys = ["h", "j", "k", "l"]
+let g:list_of_visual_keys = ["h", "j", "k", "l"]
 let g:hardtime_timeout = 200
 
 " Dirvish
@@ -60,7 +60,7 @@ command! -nargs=? -complete=dir Vexplore leftabove vsplit | silent Dirvish <args
 " Gutentags
 let g:gutentags_file_list_command = 'git ls-files'
 let g:gutentags_modules = []
-if executable('ctags') 
+if executable('ctags')
     let g:gutentags_modules += ['ctags']
 endif
 if executable('gtags-cscope')
@@ -127,6 +127,19 @@ augroup vimrc-filetype
     au!
     au FileType c,cpp setlocal commentstring=//\ %s
     au FileType qf setlocal wrap
+augroup END
+
+" Strip trailing whitespaces
+func! StripTrailingWhitespaces()
+    let l:currentline = line(".")
+    let l:currentcol = col(".")
+    %s/\s\+$//e
+    call cursor(l:currentline, l:currentcol) " restore position
+endfunc
+
+augroup vimrc-strip-trailing-whitespaces
+    au!
+    au BufWritePre * :call StripTrailingWhitespaces()
 augroup END
 
 "*****************************************************************************
@@ -271,6 +284,8 @@ cnoremap <C-f> <Right>
 cnoremap <C-b> <Left>
 cnoremap <Esc>b <S-Left>
 cnoremap <Esc>f <S-Right>
+cnoremap <C-n> <DOWN>
+cnoremap <C-p> <UP>
 
 " Faster window switching
 nnoremap <Esc>j <C-w>j
@@ -381,7 +396,7 @@ endfunc
 
 func! ConfirmToEnableLsp()
     if s:lsp_confirmed == 0 && index(s:lsp_allowlist, &ft) >= 0
-        if confirm('LSP is available, enable it?', "&yes\n&no", 1) == 1 
+        if confirm('LSP is available, enable it?', "&yes\n&no", 1) == 1
             call lsp#enable()
         endif
         let s:lsp_confirmed = 1
@@ -402,7 +417,7 @@ augroup vimrc-lsp
     endif
 
     if executable('gopls')
-        au User lsp_setup call lsp#register_server({ 
+        au User lsp_setup call lsp#register_server({
                     \ 'name': 'gopls',
                     \ 'cmd': { server_info->['gopls'] },
                     \ 'allowlist': ['go'] })
