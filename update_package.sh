@@ -9,6 +9,7 @@ PACKS=(
 "prabirshrestha/vim-lsp"
 "skywind3000/asyncrun.vim"
 "takac/vim-hardtime"
+"tpope/vim-abolish"
 "tpope/vim-commentary"
 "tpope/vim-fugitive"
 "tpope/vim-repeat"
@@ -53,4 +54,3 @@ for pack in ${PACKS[@]}; do
 	fi
 done
 
-wait
