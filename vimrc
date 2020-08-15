@@ -41,10 +41,6 @@ endif
 exe 'set undodir=' . s:undo_dir
 set undofile
 
-" AsyncRun
-let g:asyncrun_save = 2
-let g:asyncrun_exit = 'echo g:asyncrun_status . " " . g:asyncrun_code'
-
 " Hardtime
 let g:hardtime_default_on = 1
 let g:list_of_normal_keys = ["h", "j", "k", "l"]
@@ -166,7 +162,6 @@ func! ActiveStatusline() abort
     let l:line .= '%#StatusLineNC#'
     let l:line .= ' '
     let l:line .= '%{LightlineGitdiffGet()}'
-    let l:line .= g:asyncrun_status ==# 'running' ? '[asyncrun]' : ''
     let l:line .= "%{gutentags#statusline('[', ']')}"
     let l:line .= '%='
     if &ff !=# 'unix' || &fenc !=# 'utf-8'
