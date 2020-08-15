@@ -53,6 +53,9 @@ command! -nargs=? -complete=dir Explore Dirvish <args>
 command! -nargs=? -complete=dir Sexplore belowright split | silent Dirvish <args>
 command! -nargs=? -complete=dir Vexplore leftabove vsplit | silent Dirvish <args>
 
+" Dispatch
+let g:dispatch_no_maps = 1
+
 " Gutentags
 let g:gutentags_file_list_command = 'git ls-files'
 let g:gutentags_modules = []
