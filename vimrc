@@ -129,15 +129,16 @@ augroup vimrc-filetype
 augroup END
 
 " Strip trailing whitespaces
-func! StripTrailingWhitespaces()
-    let l:currentline = line(".")
-    let l:currentcol = col(".")
-    %s/\s\+$//e
-    call cursor(l:currentline, l:currentcol) " restore position
-endfunc
-
 augroup vimrc-strip-trailing-whitespaces
     au!
+
+    func! StripTrailingWhitespaces()
+        let l:currentline = line(".")
+        let l:currentcol = col(".")
+        %s/\s\+$//e
+        call cursor(l:currentline, l:currentcol) " restore position
+    endfunc
+
     au BufWritePre * :call StripTrailingWhitespaces()
 augroup END
 
@@ -306,9 +307,6 @@ nnoremap <Esc>t :tabnext<CR>
 nnoremap <Esc>T :tabprevious<CR>
 tnoremap <Esc>t <C-_>:tabnext<CR>
 tnoremap <Esc>T <C-_>:tabprevious<CR>
-
-" Clear the highlighting of :set hlsearch
-nnoremap <silent> <C-n> :nohlsearch<CR>
 
 " Double tab esc to exit terminal insert mode
 tnoremap <Esc><Esc> <C-\><C-n>
