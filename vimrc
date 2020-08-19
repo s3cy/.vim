@@ -9,6 +9,24 @@ let &runtimepath = printf('%s,%s,%s/after', s:portable, &runtimepath, s:portable
 let &packpath = &runtimepath
 
 "********************************************************************************
+" Post Install
+"********************************************************************************
+
+let s:bin_dir = expand(s:portable . '/bin')
+if !isdirectory(s:bin_dir)
+    call mkdir(s:bin_dir, '', 0700)
+endif
+
+let s:cache_dir = expand(s:portable . '/.cache')
+let s:undo_dir = expand(s:cache_dir . '/undo')
+let s:tags_dir = expand(s:cache_dir . '/tags')
+if !isdirectory(s:cache_dir)
+    call mkdir(s:undo_dir, 'p', 0700)
+    call mkdir(s:tags_dir, 'p', 0700)
+    silent exe '!bash ' . expand(s:portable . '/post_install.sh')
+endif
+
+"********************************************************************************
 " Basic Setup
 "********************************************************************************
 
@@ -25,21 +43,16 @@ set cscopequickfix=g-,s-,c-,f-,i-,t-,d-,e-,a-
 let g:go_highlight_trailing_whitespace_error = 0
 
 " Bin directory for all related executables
-let s:bin_dir = expand(s:portable . '/bin')
-if !isdirectory(s:bin_dir)
-    call mkdir(s:bin_dir, '', 0700)
-endif
 if stridx($PATH, s:bin_dir) < 0
     let $PATH .= ':' . s:bin_dir
 endif
 
 " Undo files
-let s:undo_dir = expand(s:portable . '/.cache/undo')
-if !isdirectory(s:undo_dir)
-    call mkdir(s:undo_dir, 'p', 0700)
-endif
-exe 'set undodir=' . s:undo_dir
+let &undodir = s:undo_dir
 set undofile
+
+" Viminfo file
+let &viminfofile = expand(s:cache_dir . '/viminfo')
 
 " Hardtime
 let g:hardtime_default_on = 1
@@ -48,6 +61,7 @@ let g:list_of_visual_keys = ["h", "j", "k", "l"]
 let g:hardtime_timeout = 200
 
 " Dirvish
+let g:dirvish_relative_paths = 1
 let g:loaded_netrwPlugin = 1 " disable netrw
 command! -nargs=? -complete=dir Explore Dirvish <args>
 command! -nargs=? -complete=dir Sexplore belowright split | silent Dirvish <args>
@@ -64,10 +78,6 @@ if executable('ctags')
 endif
 if executable('gtags-cscope')
     let g:gutentags_modules += ['gtags_cscope']
-endif
-let s:tags_dir = expand(s:portable . '/.cache/tags')
-if !isdirectory(s:tags_dir)
-    call mkdir(s:tags_dir, 'p', 0700)
 endif
 let g:gutentags_cache_dir = s:tags_dir
 
@@ -87,7 +97,7 @@ endif
 
 func! Tapi_TerminalEdit(bid, arglist) " invoked from a vim terminal buffer. See `:h term_setapi`
     let l:name = (type(a:arglist) == v:t_string) ? a:arglist : a:arglist[0]
-    silent exec 'drop ' . fnameescape(name)
+    silent exe 'drop ' . fnameescape(name)
     return ''
 endfunc
 
