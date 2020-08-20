@@ -111,7 +111,7 @@ func! LightlineGitdiffFormat(diff_dict) abort
 endfunc
 
 func! LightlineGitdiffGet() abort
-    return LightlineGitdiffFormat(g:lightline#gitdiff#cache[bufnr('%')])
+    return LightlineGitdiffFormat(get(g:lightline#gitdiff#cache, bufnr('%'), {}))
 endfunc
 
 " Remember cursor position
