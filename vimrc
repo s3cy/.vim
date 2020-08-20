@@ -61,7 +61,6 @@ let g:list_of_visual_keys = ["h", "j", "k", "l"]
 let g:hardtime_timeout = 200
 
 " Dirvish
-let g:dirvish_relative_paths = 1
 let g:loaded_netrwPlugin = 1 " disable netrw
 command! -nargs=? -complete=dir Explore Dirvish <args>
 command! -nargs=? -complete=dir Sexplore belowright split | silent Dirvish <args>
@@ -165,11 +164,10 @@ set t_Co=256
 func! ActiveStatusline() abort
     let l:line = ''
     if &buftype ==# 'terminal'
-        let l:line .= '%f'
-        let l:line .= '%=%P'
+        let l:line .= '%F%=%P'
         return l:line
     endif
-    let l:line .= '%f %r'
+    let l:line .= '%F %r'
     if &ro ==# ''
         let l:line .= '%m'
     endif
@@ -190,7 +188,7 @@ endfunc
 
 func! InactiveStatusline() abort
     let l:line = ''
-    let l:line .= '%f%=%P'
+    let l:line .= '%F%=%P'
     return l:line
 endfunc
 
