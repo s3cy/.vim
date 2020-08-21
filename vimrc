@@ -164,7 +164,7 @@ if exists('+termguicolors')
 endif
 colorscheme gruvbox8
 set background=dark
-let g:gruvbox_italicize_strings = 0
+let g:gruvbox_italics = 0
 
 " Statusline
 func! ActiveStatusline() abort
