@@ -158,7 +158,7 @@ augroup END
 " Color
 colorscheme gruvbox8
 set background=dark
-set t_Co=256
+let g:gruvbox_italicize_strings = 0
 
 " Statusline
 func! ActiveStatusline() abort
