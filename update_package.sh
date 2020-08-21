@@ -2,8 +2,8 @@
 
 PACKS=(
 "justinmk/vim-dirvish"
+"lifepillar/vim-gruvbox8"
 "ludovicchabant/vim-gutentags"
-"morhetz/gruvbox"
 "niklaas/lightline-gitdiff"
 "octol/vim-cpp-enhanced-highlight"
 "prabirshrestha/vim-lsp"

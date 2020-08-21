@@ -156,7 +156,7 @@ augroup END
 "*****************************************************************************
 
 " Color
-colorscheme gruvbox
+colorscheme gruvbox8
 set background=dark
 set t_Co=256
 
