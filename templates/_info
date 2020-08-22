@@ -1,0 +1,7 @@
+# vim: ft=colortemplate
+
+Author:          Chuyang Zheng <s3cy@hotmail.com>
+Description:     The famous gruvbox theme with only 256 colors
+Option Prefix:   gruvbox
+Neovim:          yes
+
