@@ -1,0 +1,22 @@
+# vim: ft=colortemplate
+
+Full name:  Gruvbox 256 Soft
+Short name: gruvbox256_soft
+
+Include: _info
+Include: _neutral_colors
+Include: _global
+
+Variant: gui 256
+
+Background: dark
+Color: bg0 rgb(48, 48, 48) 236 Black
+Include: _dark
+
+Background: light
+Color: bg0 rgb(225, 225, 135) 228 White
+Include: _light
+
+Background: any
+Include: _bw
+

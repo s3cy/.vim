@@ -1,0 +1,23 @@
+# vim: ft=colortemplate
+
+# Color palette for dark background
+Color: bg1             rgb( 58,  58,  58)    237 DarkGray
+Color: bg2             rgb( 78,  78,  78)    239
+Color: bg3             rgb( 96,  96,  96)    241
+Color: bg4             rgb(118, 118, 118)    243
+Color: fg0             rgb(255, 255, 215)    230
+Color: fg1             rgb(255, 215, 175)    223 White
+Color: fg2             rgb(188, 188, 188)    250
+Color: fg3             rgb(168, 168, 168)    248
+Color: fg4             rgb(148, 148, 148)    246 Gray
+Color: grey            rgb(138, 138, 138)    245 DarkGray
+Color: red             rgb(215,  95,  95)    167 Red
+Color: green           rgb(175, 175,   0)    142 Green
+Color: yellow          rgb(255, 175,   0)    214 Yellow
+Color: blue            rgb(135, 175, 175)    109 Blue
+Color: purple          rgb(215, 135, 175)    175 Magenta
+Color: aqua            rgb(135, 175, 135)    108 Cyan
+Color: orange          rgb(255, 135,   0)    208 Magenta
+
+Include: _common
+
