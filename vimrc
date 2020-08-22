@@ -158,14 +158,13 @@ augroup END
 " Color
 if exists('+termguicolors')
 	" Alacritty true color support
-	let &t_8f="\<Esc>[38;2;%lu;%lu;%lum"
-	let &t_8b="\<Esc>[48;2;%lu;%lu;%lum"
+	let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+	let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 	set termguicolors
 endif
 colorscheme gruvbox256
 set background=dark
 let g:gruvbox_italics = 0
-let g:gruvbox_filetype_hi_groups = 1
 let g:gruvbox_plugin_hi_groups = 1
 
 " Statusline
