@@ -2,10 +2,10 @@
 
 PACKS=(
 	"justinmk/vim-dirvish"
-	"lifepillar/vim-gruvbox8"
 	"ludovicchabant/vim-gutentags"
 	"niklaas/lightline-gitdiff"
 	"prabirshrestha/vim-lsp"
+	"s3cy/vim-gruvbox256"
 	"sheerun/vim-polyglot"
 	"takac/vim-hardtime"
 	"tpope/vim-abolish"
@@ -14,7 +14,6 @@ PACKS=(
 	"tpope/vim-fugitive"
 	"tpope/vim-repeat"
 	"tpope/vim-sensible"
-	"tpope/vim-sleuth"
 	"tpope/vim-surround"
 	"tpope/vim-unimpaired"
 )

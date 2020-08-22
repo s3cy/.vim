@@ -162,9 +162,11 @@ if exists('+termguicolors')
 	let &t_8b="\<Esc>[48;2;%lu;%lu;%lum"
 	set termguicolors
 endif
-colorscheme gruvbox8
+colorscheme gruvbox256
 set background=dark
 let g:gruvbox_italics = 0
+let g:gruvbox_filetype_hi_groups = 1
+let g:gruvbox_plugin_hi_groups = 1
 
 " Statusline
 func! ActiveStatusline() abort
