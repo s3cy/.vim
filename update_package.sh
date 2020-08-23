@@ -5,6 +5,7 @@ PACKS=(
 	"ludovicchabant/vim-gutentags"
 	"niklaas/lightline-gitdiff"
 	"prabirshrestha/vim-lsp"
+	"roxma/vim-paste-easy"
 	"s3cy/vim-gruvbox256"
 	"sheerun/vim-polyglot"
 	"takac/vim-hardtime"
