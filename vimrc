@@ -37,6 +37,7 @@ set number relativenumber
 set tabstop=4
 set shiftwidth=4
 set path=.,,**
+set shortmess-=S
 set matchpairs+=<:>
 set cscopequickfix=g-,s-,c-,f-,i-,t-,d-,e-,a-
 
