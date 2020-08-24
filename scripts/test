@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+vim --clean -N -u <(
+  echo "filetype plugin indent on"
+  echo "syntax enable"
+  echo "let &rtp='$PWD,'.&rtp"
+  echo "source scripts/test_filetypes.vim"
+  echo "exec ':q!'"
+)
