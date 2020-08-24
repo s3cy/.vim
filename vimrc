@@ -24,6 +24,7 @@ if !isdirectory(s:cache_dir)
 	call mkdir(s:undo_dir, 'p', 0700)
 	call mkdir(s:tags_dir, 'p', 0700)
 	silent exe '!bash ' . expand(s:portable . '/post_install.sh')
+	silent! helptags ALL
 endif
 
 "********************************************************************************
