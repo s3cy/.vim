@@ -65,6 +65,7 @@ function! lsp#enable() abort
     endif
     call lsp#ui#vim#completion#_setup()
     call lsp#internal#diagnostics#_enable()
+    call lsp#internal#highlight_references#_enable()
     call s:register_events()
 endfunction
 
@@ -76,7 +77,10 @@ function! lsp#disable() abort
     call lsp#ui#vim#virtual#disable()
     call lsp#ui#vim#highlights#disable()
     call lsp#ui#vim#diagnostics#textprop#disable()
+    call lsp#ui#vim#signature_help#_disable()
+    call lsp#ui#vim#completion#_disable()
     call lsp#internal#diagnostics#_disable()
+    call lsp#internal#highlight_references#_disable()
     call s:unregister_events()
     let s:enabled = 0
 endfunction
@@ -207,10 +211,6 @@ function! s:register_events() abort
         if exists('##TextChangedP')
             autocmd TextChangedP * call s:on_text_document_did_change()
         endif
-        if g:lsp_highlight_references_enabled
-            autocmd CursorMoved * call s:on_cursor_moved()
-        endif
-        autocmd BufWinEnter,BufWinLeave,InsertEnter * call lsp#ui#vim#references#clean_references()
     augroup END
 
     for l:bufnr in range(1, bufnr('$'))
@@ -268,15 +268,6 @@ function! s:on_text_document_did_change() abort
     if getbufvar(l:buf, '&buftype') ==# 'terminal' | return | endif
     call lsp#log('s:on_text_document_did_change()', l:buf)
     call s:add_didchange_queue(l:buf)
-endfunction
-
-function! s:on_cursor_moved() abort
-    let l:buf = bufnr('%')
-    if getbufvar(l:buf, '&buftype') ==# 'terminal' | return | endif
-
-    if g:lsp_highlight_references_enabled
-        call lsp#ui#vim#references#highlight(v:false)
-    endif
 endfunction
 
 function! s:call_did_save(buf, server_name, result, cb) abort
@@ -981,14 +972,14 @@ function! s:request_cancel(ctx) abort
     if a:ctx['request_id'] <= 0 || a:ctx['done'] | return | endif " we have not made the request yet or request is complete, so nothing to cancel
     if lsp#get_server_status(a:ctx['server_name']) !=# 'running' | return | endif " if server is not running we cant send the request
     " send the actual cancel request
-    let l:Dispose = lsp#callbag#pipe(
+    let a:ctx['dispose'] = lsp#callbag#pipe(
         \ lsp#request(a:ctx['server_name'], {
         \   'method': '$/cancelRequest',
         \   'params': { 'id': a:ctx['request_id'] },
         \ }),
         \ lsp#callbag#subscribe({
-        \   'error':{e->l:Dispose()},
-        \   'complete':{->l:Dispose()},
+        \   'error':{e->s:send_request_dispose(a:ctx)},
+        \   'complete':{->s:send_request_dispose(a:ctx)},
         \ })
         \)
 endfunction
@@ -1004,14 +995,21 @@ function! lsp#send_request(server_name, request) abort
         \ lsp#callbag#subscribe({
         \   'next':{d->l:ctx['cb'](d)},
         \   'error':{e->s:send_request_error(l:ctx, e)},
-        \   'complete':{->l:ctx['dispose']()},
+        \   'complete':{->s:send_request_dispose(l:ctx)},
         \ })
         \)
 endfunction
 
+function! s:send_request_dispose(ctx) abort
+    " dispose function may not have been created so check before calling
+    if has_key(a:ctx, 'dispose')
+        call a:ctx['dispose']()
+    endif
+endfunction
+
 function! s:send_request_error(ctx, error) abort
     call a:ctx['cb'](a:error)
-    call a:ctx['dispose']()
+    call s:send_request_dispose(a:ctx)
 endfunction
 " }}}
 
