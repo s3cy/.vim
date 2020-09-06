@@ -1,0 +1,303 @@
+---
+name: c/c++
+remote: vim-jp/vim-cpp
+filetypes:
+- name: c
+  linguist: C
+- name: cpp
+  linguist: C++
+  ignored_extensions:
+  # conflicts with more popular reason, remove after heuristics work
+  - re
+  # implemented by arduino
+  - ino
+---
+name: cmake
+remote: pboettch/vim-cmake-syntax
+filetypes:
+- name: cmake
+  linguist: CMake
+---
+name: csv
+remote: chrisbra/csv.vim
+filetypes:
+- name: csv
+  linguist: CSV
+  extra_extensions:
+  - tsv
+  - tab
+  ignored_extensions:
+  # This is definitely not csv-only, maybe re-enable when heuristics done
+  - dat
+---
+name: dockerfile
+remote: ekalinin/Dockerfile.vim
+filetypes:
+- name: Dockerfile
+  linguist: Dockerfile
+  extra_extensions:
+  - dock
+  - Dockerfile
+  extra_filenames:
+  - dockerfile
+  - Dockerfile*
+- name: yaml.docker-compose
+  filenames:
+  - 'docker-compose*.yaml'
+  - 'docker-compose*.yml'
+  ignored_filenames:
+  # Probably mistakes?
+  - 'docker-compose*.yaml*'
+  - 'docker-compose*.yml*'
+---
+name: fish
+remote: georgewitteman/vim-fish
+filetypes:
+- name: fish
+  linguist: fish
+---
+name: git
+remote: tpope/vim-git
+filetypes:
+- name: gitconfig
+  linguist: Git Config
+  extra_filenames:
+  - "*.git/config"
+  - "*/.config/git/config"
+  - "*.git/modules/**/config"
+  - '.gitmodules'
+- name: gitrebase
+  filenames:
+  - git-rebase-todo
+- name: gitsendemail
+  filenames:
+  - ".gitsendemail.*"
+- name: gitcommit
+  filenames:
+  - '*.git/{,modules/**/,worktrees/*/}{COMMIT_EDIT,TAG_EDIT,MERGE_,}MSG'
+---
+name: go
+remote: fatih/vim-go
+ignored_dirs:
+- autoload
+- ftplugin
+extra_dirs:
+- autoload/go/config.vim
+filetypes:
+- name: go
+  linguist: Go
+- name: gomod
+  filenames:
+  - go.mod
+- name: gohtmltmpl
+  extensions:
+  - tmpl
+---
+name: javascript
+remote: pangloss/vim-javascript
+ignored_dirs:
+# we don't want eslint compiler, see #521
+- compiler
+filetypes:
+- name: javascript
+  linguist: JavaScript
+- name: flow
+  extensions:
+  - flow
+---
+name: json
+remote: elzr/vim-json
+filetypes:
+- name: json
+  linguist: JSON
+  extra_extensions:
+  - jsonp
+  - template
+---
+name: log
+remote: MTDL9/vim-log-highlighting
+filetypes:
+- name: log
+  extensions:
+  - log
+  - LOG
+  filenames:
+  - '*_log'
+  - '*_LOG'
+---
+name: markdown
+remote: plasticboy/vim-markdown
+ignored_dirs:
+# Disable slow folding config
+- after
+filetypes:
+- name: markdown
+  linguist: Markdown
+  ignored_extensions:
+  # Handled by mdx extension
+  - mdx
+  - '{md,mdx,mdown,mkd,mkdn,markdown,mdwn}.{des3,des,bf,bfa,aes,idea,cast,rc2,rc4,rc5,desx}'
+---
+name: nginx
+remote: chr4/nginx.vim
+filetypes:
+- name: nginx
+  linguist: Nginx
+  extra_extensions:
+  - nginx
+  extra_filenames:
+  - "*/etc/nginx/*"
+  - "*/usr/local/nginx/conf/*"
+  - "*/nginx/*.conf"
+  - nginx*.conf
+  - "*nginx.conf"
+---
+name: protobuf
+remote: uarun/vim-protobuf
+filetypes:
+- name: proto
+  linguist: Protocol Buffer
+---
+name: python
+remote: vim-python/python-syntax
+filetypes:
+- name: python
+  linguist: Python
+  ignored_filenames:
+  - 'lit.*cfg'
+---
+name: python-indent
+remote: Vimjas/vim-python-pep8-indent
+# just adds to python
+filetypes: []
+---
+name: python-compiler
+remote: aliev/vim-compiler-python
+# just adds to python
+filetypes: []
+---
+name: requirements
+remote: raimon49/requirements.txt.vim
+filetypes:
+- name: requirements
+  extensions:
+  - pip
+  filenames:
+  - '*requirements.{txt,in}'
+  - '*require.{txt,in}'
+  - 'constraints.{txt,in}'
+  ignored_extensions:
+  # Probaly a bug in plugin
+  - txt
+  - in
+---
+name: rust
+remote: rust-lang/rust.vim
+filetypes:
+- name: rust
+  linguist: Rust
+---
+name: sh
+remote: arzg/vim-sh
+filetypes:
+- name: sh
+  linguist: Shell
+  ignored_extensions:
+  - zsh
+  ignored_filenames:
+  - '.zshrc'
+  - '.zshenv'
+  - '.zlogin'
+  - '.zprofile'
+  - '.zlogout'
+  - 'zshrc'
+  - 'zshenv'
+  - 'zlogin'
+  - 'zprofile'
+  - 'zlogout'
+- name: zsh
+  extensions:
+  - zsh
+  filenames:
+  - '.zshrc'
+  - '.zshenv'
+  - '.zlogin'
+  - '.zprofile'
+  - '.zlogout'
+---
+name: systemd
+remote: wgwoods/vim-systemd-syntax
+filetypes:
+- name: systemd
+  extensions:
+  - automount
+  - mount
+  - path
+  - service
+  - socket
+  - swap
+  - target
+  - timer
+---
+name: textile
+remote: timcharper/textile.vim
+filetypes:
+- name: textile
+  linguist: Textile
+---
+name: toml
+remote: cespare/vim-toml
+filetypes:
+- name: toml
+  linguist: TOML
+  extra_filenames:
+  - Pipfile
+  - "*/.cargo/config"
+  - "*/.cargo/credentials"
+---
+name: typescript
+remote: HerringtonDarkholme/yats.vim
+filetypes:
+- name: typescript
+  linguist: TypeScript
+- name: typescriptreact
+  linguist: TSX
+---
+name: xml
+remote: amadeus/vim-xml
+filetypes:
+- name: xml
+  linguist: XML
+  extra_extensions:
+  - cdxml
+  ignored_extensions:
+  - ts
+  - tsx
+---
+name: yaml
+remote: stephpy/vim-yaml
+filetypes:
+- name: yaml
+  linguist: YAML
+  extra_filenames:
+  - fish_history
+  - fish_read_history
+  ignored_filenames:
+  - '~/.config/fish/fish_{read_,}history'
+# Helm needs to be after YAML
+---
+name: helm
+remote: towolf/vim-helm
+filetypes:
+- name: helm
+  filenames:
+  - "*/templates/*.yaml"
+  - "*/templates/*.tpl"
+---
+name: help
+remote: neovim/neovim:runtime
+glob: '**/help.vim'
+filetypes:
+- name: help
+  filenames:
+  - '$VIMRUNTIME/doc/*.txt'
