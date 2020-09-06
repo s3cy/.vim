@@ -7,7 +7,7 @@ PACKS=(
 	"prabirshrestha/vim-lsp"
 	"roxma/vim-paste-easy"
 	"s3cy/vim-gruvbox256"
-	"sheerun/vim-polyglot"
+	"s3cy/vim-polyglot"
 	"takac/vim-hardtime"
 	"tpope/vim-abolish"
 	"tpope/vim-commentary"
