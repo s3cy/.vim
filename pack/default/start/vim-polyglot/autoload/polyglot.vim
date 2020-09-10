@@ -7,12 +7,13 @@ func! polyglot#Heuristics()
   let l:filetype = polyglot#Shebang()
   if l:filetype != ""
     exec "setf " . l:filetype
-    return
+    return 1
   endif
+
+  return 0
 endfunc
 
 let s:interpreters = {
-  \ 'tcc': 'c',
   \ 'fish': 'fish',
   \ 'chakra': 'javascript',
   \ 'd8': 'javascript',
@@ -112,6 +113,25 @@ func! polyglot#DetectAspFiletype()
     endif
   endfor
   setf aspvbs | return
+endfunc
+
+func! polyglot#DetectHFiletype()
+  for lnum in range(1, min([line("$"), 200]))
+    let line = getline(lnum)
+    if line =~# '^\s*\(@\(interface\|class\|protocol\|property\|end\|synchronised\|selector\|implementation\)\(\<\|\>\)\|#import\s\+.\+\.h[">]\)'
+      if exists("g:c_syntax_for_h")
+        setf objc | return
+      endif
+      setf objcpp | return
+    endif
+  endfor
+  if exists("g:c_syntax_for_h")
+    setf c | return
+  endif
+  if exists("g:ch_syntax_for_h")
+    setf ch | return
+  endif
+  setf cpp | return
 endfunc
 
 func! polyglot#DetectMFiletype()
@@ -214,6 +234,16 @@ func! polyglot#DetectLidrFiletype()
     endif
   endfor
   setf lidris2 | return
+endfunc
+
+func! polyglot#DetectBasFiletype()
+  for lnum in range(1, min([line("$"), 5]))
+    let line = getline(lnum)
+    if line =~? 'VB_Name\|Begin VB\.\(Form\|MDIForm\|UserControl\)'
+      setf vb | return
+    endif
+  endfor
+  setf basic | return
 endfunc
 
 " Restore 'cpoptions'

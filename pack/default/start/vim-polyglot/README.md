@@ -69,7 +69,7 @@ If you need full functionality of any plugin, please use it directly with your p
 - [toml](https://github.com/cespare/vim-toml)
 - [typescript](https://github.com/HerringtonDarkholme/yats.vim)
 - [xml](https://github.com/amadeus/vim-xml)
-- [yaml](https://github.com/stephpy/vim-yaml)
+- [yaml](https://github.com/vim/vim/tree/df44a27b53586fccfc6a3aedc89061fdd9a515ff/runtime)
 <!--/Language Packs-->
 
 ## Updating
