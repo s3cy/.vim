@@ -10,7 +10,6 @@ function! TestFiletype(filetype)
   endtry
 endfunction
 
-call TestFiletype('c')
 call TestFiletype('cpp')
 call TestFiletype('cmake')
 call TestFiletype('csv')

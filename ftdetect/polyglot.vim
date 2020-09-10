@@ -13,6 +13,8 @@ if exists('g:polyglot_disabled')
   for pkg in g:polyglot_disabled
     let s:disabled_packages[pkg] = 1
   endfor
+else
+  let g:polyglot_disabled_not_set = 1
 endif
 
 function! s:SetDefault(name, value)
@@ -60,19 +62,27 @@ if !exists('g:python_highlight_all')
   call s:SetDefault('g:python_slow_sync', 1)
 endif
 
+
+" Function used for patterns that end in a star: don't set the filetype if the
+" file name matches ft_ignore_pat.
+" When using this, the entry should probably be further down below with the
+" other StarSetf() calls.
+func! s:StarSetf(ft)
+  if expand("<amatch>") !~ g:ft_ignore_pat
+    exe 'setf ' . a:ft
+  endif
+endfunc
+
+augroup filetypedetect
+
 " filetypes
 
 if !has_key(s:disabled_packages, 'c/c++')
-  au BufNewFile,BufRead *.c setf c
-  au BufNewFile,BufRead *.cats setf c
-  au BufNewFile,BufRead *.h setf c
-  au BufNewFile,BufRead *.idc setf c
   au BufNewFile,BufRead *.c++ setf cpp
   au BufNewFile,BufRead *.cc setf cpp
   au BufNewFile,BufRead *.cp setf cpp
   au BufNewFile,BufRead *.cpp setf cpp
   au BufNewFile,BufRead *.cxx setf cpp
-  au BufNewFile,BufRead *.h setf cpp
   au BufNewFile,BufRead *.h++ setf cpp
   au BufNewFile,BufRead *.hh setf cpp
   au BufNewFile,BufRead *.hpp setf cpp
@@ -80,8 +90,11 @@ if !has_key(s:disabled_packages, 'c/c++')
   au BufNewFile,BufRead *.inc setf cpp
   au BufNewFile,BufRead *.inl setf cpp
   au BufNewFile,BufRead *.ipp setf cpp
+  au BufNewFile,BufRead *.moc setf cpp
   au BufNewFile,BufRead *.tcc setf cpp
+  au BufNewFile,BufRead *.tlh setf cpp
   au BufNewFile,BufRead *.tpp setf cpp
+  au! BufNewFile,BufRead *.h call polyglot#DetectHFiletype()
 endif
 
 if !has_key(s:disabled_packages, 'cmake')
@@ -101,7 +114,7 @@ if !has_key(s:disabled_packages, 'dockerfile')
   au BufNewFile,BufRead *.dock setf Dockerfile
   au BufNewFile,BufRead *.dockerfile setf Dockerfile
   au BufNewFile,BufRead Dockerfile setf Dockerfile
-  au BufNewFile,BufRead Dockerfile* setf Dockerfile
+  au BufNewFile,BufRead Dockerfile* call s:StarSetf('Dockerfile')
   au BufNewFile,BufRead dockerfile setf Dockerfile
   au BufNewFile,BufRead docker-compose*.yaml setf yaml.docker-compose
   au BufNewFile,BufRead docker-compose*.yml setf yaml.docker-compose
@@ -114,13 +127,15 @@ endif
 if !has_key(s:disabled_packages, 'git')
   au BufNewFile,BufRead *.gitconfig setf gitconfig
   au BufNewFile,BufRead *.git/config setf gitconfig
-  au BufNewFile,BufRead *.git/modules/**/config setf gitconfig
+  au BufNewFile,BufRead *.git/modules/*/config setf gitconfig
   au BufNewFile,BufRead */.config/git/config setf gitconfig
+  au BufNewFile,BufRead */git/config setf gitconfig
+  au BufNewFile,BufRead */{.,}gitconfig.d/* call s:StarSetf('gitconfig')
   au BufNewFile,BufRead {.,}gitconfig setf gitconfig
   au BufNewFile,BufRead {.,}gitmodules setf gitconfig
   au BufNewFile,BufRead git-rebase-todo setf gitrebase
-  au BufNewFile,BufRead {.,}gitsendemail.* setf gitsendemail
-  au BufNewFile,BufRead *.git/{,modules/**/,worktrees/*/}{COMMIT_EDIT,TAG_EDIT,MERGE_,}MSG setf gitcommit
+  au BufNewFile,BufRead {.,}gitsendemail.* call s:StarSetf('gitsendemail')
+  au BufNewFile,BufRead COMMIT_EDITMSG,MERGE_MSG,TAG_EDITMSG setf gitcommit
 endif
 
 if !has_key(s:disabled_packages, 'go')
@@ -207,9 +222,9 @@ if !has_key(s:disabled_packages, 'nginx')
   au BufNewFile,BufRead *.nginx setf nginx
   au BufNewFile,BufRead *.nginxconf setf nginx
   au BufNewFile,BufRead *.vhost setf nginx
-  au BufNewFile,BufRead */etc/nginx/* setf nginx
+  au BufNewFile,BufRead */etc/nginx/* call s:StarSetf('nginx')
   au BufNewFile,BufRead */nginx/*.conf setf nginx
-  au BufNewFile,BufRead */usr/local/nginx/conf/* setf nginx
+  au BufNewFile,BufRead */usr/local/nginx/conf/* call s:StarSetf('nginx')
   au BufNewFile,BufRead *nginx.conf setf nginx
   au BufNewFile,BufRead nginx*.conf setf nginx
   au BufNewFile,BufRead nginx.conf setf nginx
@@ -244,12 +259,6 @@ if !has_key(s:disabled_packages, 'python')
   au BufNewFile,BufRead SConstruct setf python
   au BufNewFile,BufRead Snakefile setf python
   au BufNewFile,BufRead wscript setf python
-endif
-
-if !has_key(s:disabled_packages, 'python-indent')
-endif
-
-if !has_key(s:disabled_packages, 'python-compiler')
 endif
 
 if !has_key(s:disabled_packages, 'requirements')
@@ -478,8 +487,213 @@ endif
 " end filetypes
 
 au BufNewFile,BufRead,StdinReadPost * 
-  \ if !did_filetype() && expand("<amatch>") !~ g:ft_ignore_pat 
+  \ if !did_filetype() && expand("<afile>") !~ g:ft_ignore_pat 
   \ | call polyglot#Heuristics() | endif
+
+augroup END
+
+if !has_key(s:disabled_packages, 'autoindent')
+  " Code below re-implements sleuth for vim-polyglot
+  let g:loaded_sleuth = 1
+  let g:loaded_foobar = 1
+
+  " Makes shiftwidth to be synchronized with tabstop by default
+  if &shiftwidth == &tabstop
+    let &shiftwidth = 0
+  endif
+
+  function! s:guess(lines) abort
+    let options = {}
+    let ccomment = 0
+    let podcomment = 0
+    let triplequote = 0
+    let backtick = 0
+    let xmlcomment = 0
+    let heredoc = ''
+    let minindent = 10
+    let spaces_minus_tabs = 0
+    let i = 0
+
+    for line in a:lines
+      let i += 1
+
+      if !len(line) || line =~# '^\W*$'
+        continue
+      endif
+
+      if line =~# '^\s*/\*'
+        let ccomment = 1
+      endif
+      if ccomment
+        if line =~# '\*/'
+          let ccomment = 0
+        endif
+        continue
+      endif
+
+      if line =~# '^=\w'
+        let podcomment = 1
+      endif
+      if podcomment
+        if line =~# '^=\%(end\|cut\)\>'
+          let podcomment = 0
+        endif
+        continue
+      endif
+
+      if triplequote
+        if line =~# '^[^"]*"""[^"]*$'
+          let triplequote = 0
+        endif
+        continue
+      elseif line =~# '^[^"]*"""[^"]*$'
+        let triplequote = 1
+      endif
+
+      if backtick
+        if line =~# '^[^`]*`[^`]*$'
+          let backtick = 0
+        endif
+        continue
+      elseif &filetype ==# 'go' && line =~# '^[^`]*`[^`]*$'
+        let backtick = 1
+      endif
+
+      if line =~# '^\s*<\!--'
+        let xmlcomment = 1
+      endif
+      if xmlcomment
+        if line =~# '-->'
+          let xmlcomment = 0
+        endif
+        continue
+      endif
+
+      " This is correct order because both "<<EOF" and "EOF" matches end
+      if heredoc != ''
+        if line =~# heredoc
+          let heredoc = ''
+        endif
+        continue
+      endif
+      let herematch = matchlist(line, '\C<<\W*\([A-Z]\+\)\s*$')
+      if len(herematch) > 0
+        let heredoc = herematch[1] . '$'
+      endif
+
+      let spaces_minus_tabs += line[0] == "\t" ? 1 : -1
+
+      if line[0] == "\t"
+        setlocal noexpandtab
+        let &shiftwidth=&tabstop
+        let b:sleuth_culprit .= ':' . i
+        return 1
+      elseif line[0] == " "
+        let indent = len(matchstr(line, '^ *'))
+        if (indent % 2 == 0 || indent % 3 == 0) && indent < minindent
+          let minindent = indent
+        endif
+      endif
+    endfor
+
+    if minindent < 10
+      setlocal expandtab
+      let &shiftwidth=minindent
+      let b:sleuth_culprit .= ':' . i
+      return 1
+    endif
+
+    return 0
+  endfunction
+
+  function! s:detect_indent() abort
+    if &buftype ==# 'help'
+      return
+    endif
+
+    let b:sleuth_culprit = expand("<afile>:p")
+    if s:guess(getline(1, 32))
+      return
+    endif
+    let pattern = sleuth#GlobForFiletype(&filetype)
+    if len(pattern) == 0
+      return
+    endif
+    let pattern = '{' . pattern . ',.git,.svn,.hg}'
+    let dir = expand('%:p:h')
+    let level = 3
+    while isdirectory(dir) && dir !=# fnamemodify(dir, ':h') && level > 0
+      " Ignore files from homedir and root 
+      if dir == expand('~') || dir == '/'
+        unlet b:sleuth_culprit
+        return
+      endif
+      for neighbor in glob(dir . '/' . pattern, 0, 1)[0:level]
+        let b:sleuth_culprit = neighbor
+        " Do not consider directories above .git, .svn or .hg
+        if fnamemodify(neighbor, ":h:t")[0] == "."
+          let level = 0
+          continue
+        endif
+        if neighbor !=# expand('%:p') && filereadable(neighbor)
+          if s:guess(readfile(neighbor, '', 32))
+            return
+          endif
+        endif
+      endfor
+
+      let dir = fnamemodify(dir, ':h')
+      let level -= 1
+    endwhile
+
+    unlet b:sleuth_culprit
+  endfunction
+
+  setglobal smarttab
+
+  function! SleuthIndicator() abort
+    let sw = &shiftwidth ? &shiftwidth : &tabstop
+    if &expandtab
+      return 'sw='.sw
+    elseif &tabstop == sw
+      return 'ts='.&tabstop
+    else
+      return 'sw='.sw.',ts='.&tabstop
+    endif
+  endfunction
+
+  augroup polyglot-sleuth
+    au!
+    au FileType * call s:detect_indent()
+    au User Flags call Hoist('buffer', 5, 'SleuthIndicator')
+  augroup END
+
+  command! -bar -bang Sleuth call s:detect_indent()
+endif
+
+func! s:verify()
+  if exists("g:polyglot_disabled_not_set")
+    if exists("g:polyglot_disabled")
+      echohl WarningMsg
+      echo "vim-polyglot: g:polyglot_disabled should be at the top of .vimrc"
+      echohl None
+    endif
+
+    unlet g:polyglot_disabled_not_set
+  endif
+endfunc
+
+au VimEnter * call s:verify()
+
+func! s:observe_filetype()
+  augroup polyglot-observer
+    au! CursorHold,CursorHoldI <buffer>
+      \ if polyglot#Heuristics() | au! polyglot-observer CursorHold,CursorHoldI | endif
+  augroup END
+endfunc
+
+au BufEnter * if &ft == "" && expand("<afile>") !~ g:ft_ignore_pat
+      \ | call s:observe_filetype() | endif
 
 " restore Vi compatibility settings
 let &cpo = s:cpo_save
