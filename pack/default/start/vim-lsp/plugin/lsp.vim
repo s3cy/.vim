@@ -10,10 +10,9 @@ let g:lsp_log_file = get(g:, 'lsp_log_file', '')
 let g:lsp_log_verbose = get(g:, 'lsp_log_verbose', 1)
 let g:lsp_debug_servers = get(g:, 'lsp_debug_servers', [])
 let g:lsp_format_sync_timeout = get(g:, 'lsp_format_sync_timeout', -1)
-let g:lsp_documentation_debounce = get(g:, 'lsp_documentation_debounce', 80)
-let g:lsp_documentation_float = get(g:, 'lsp_documentation_float', 1)
-let g:lsp_documentation_float_docked = get(g:, 'lsp_documentation_float_docked', 0)
-let g:lsp_documentation_float_docked_maxheight = get(g:, ':lsp_documentation_float_docked_maxheight', &previewheight)
+
+let g:lsp_completion_documentation_enabled = get(g:, 'lsp_completion_documentation_enabled', 1)
+let g:lsp_completion_documentation_delay = get(g:, 'lsp_completion_documention_delay', 80)
 
 let g:lsp_diagnostics_enabled = get(g:, 'lsp_diagnostics_enabled', 1)
 let g:lsp_diagnostics_echo_cursor = get(g:, 'lsp_diagnostics_echo_cursor', 0)
@@ -36,6 +35,11 @@ let g:lsp_diagnostics_virtual_text_enabled = get(g:, 'lsp_diagnostics_virtual_te
 let g:lsp_diagnostics_virtual_text_insert_mode_enabled = get(g:, 'lsp_diagnostics_virtual_text_insert_mode_enabled', 0)
 let g:lsp_diagnostics_virtual_text_delay = get(g:, 'lsp_diagnostics_virtual_text_delay', 500)
 let g:lsp_diagnostics_virtual_text_prefix = get(g:, 'lsp_diagnostics_virtual_text_prefix', '')
+
+let g:lsp_document_code_action_signs_enabled = get(g:, 'lsp_document_code_action_signs_enabled', 1)
+let g:lsp_document_code_action_signs_delay = get(g:, 'lsp_document_code_action_signs_delay', 500)
+let g:lsp_document_code_action_signs_hint = get(g:, 'lsp_document_code_action_signs_hint', {})
+let g:lsp_document_code_action_signs_priority = get(g:, 'lsp_document_code_action_signs_priority', 10)
 
 let g:lsp_preview_keep_focus = get(g:, 'lsp_preview_keep_focus', 1)
 let g:lsp_use_event_queue = get(g:, 'lsp_use_event_queue', has('nvim') || has('patch-8.1.0889'))
@@ -93,7 +97,7 @@ command! -nargs=? LspDocumentDiagnostics call lsp#internal#diagnostics#document_
             \ extend({}, lsp#utils#args#_parse(<q-args>, {
             \   'buffers': {'type': type('')},
             \ })))
-command! -nargs=? -complete=customlist,lsp#utils#empty_complete LspHover call lsp#ui#vim#hover#get_hover_under_cursor()
+command! -nargs=? -complete=customlist,lsp#utils#empty_complete LspHover call lsp#internal#document_hover#under_cursor#do({})
 command! -nargs=* LspNextError call lsp#internal#diagnostics#movement#_next_error(<f-args>)
 command! -nargs=* LspPreviousError call lsp#internal#diagnostics#movement#_previous_error(<f-args>)
 command! -nargs=* LspNextWarning call lsp#internal#diagnostics#movement#_next_warning(<f-args>)
@@ -141,7 +145,7 @@ nnoremap <plug>(lsp-peek-definition) :<c-u>call lsp#ui#vim#definition(1)<cr>
 nnoremap <plug>(lsp-document-symbol) :<c-u>call lsp#ui#vim#document_symbol()<cr>
 nnoremap <plug>(lsp-document-symbol-search) :<c-u>call lsp#internal#document_symbol#search#do({})<cr>
 nnoremap <plug>(lsp-document-diagnostics) :<c-u>call lsp#internal#diagnostics#document_diagnostics_command#do({})<cr>
-nnoremap <plug>(lsp-hover) :<c-u>call lsp#ui#vim#hover#get_hover_under_cursor()<cr>
+nnoremap <plug>(lsp-hover) :<c-u>call lsp#internal#document_hover#under_cursor#do({})<cr>
 nnoremap <plug>(lsp-preview-close) :<c-u>call lsp#ui#vim#output#closepreview()<cr>
 nnoremap <plug>(lsp-preview-focus) :<c-u>call lsp#ui#vim#output#focuspreview()<cr>
 nnoremap <plug>(lsp-next-error) :<c-u>call lsp#internal#diagnostics#movement#_next_error()<cr>
