@@ -19,11 +19,10 @@ CONTENTS                                                  *vim-lsp-contents*
       g:lsp_preview_doubletap               |g:lsp_preview_doubletap|
       g:lsp_insert_text_enabled             |g:lsp_insert_text_enabled|
       g:lsp_text_edit_enabled               |g:lsp_text_edit_enabled|
-      g:lsp_documentation_debounce          |g:lsp_documentation_debounce|
-      g:lsp_documentation_float             |g:lsp_documentation_float|
-      g:lsp_documentation_float_docked      |g:lsp_documentation_float_docked|
-      g:lsp_documentation_float_docked_maxheight
-                              |g:lsp_documentation_float_docked_maxheight|
+      g:lsp_completion_documentation_enabled
+					|g:lsp_completion_documentation_enabled|
+      g:lsp_completion_documentation_delay
+					|g:lsp_completion_documentation_delay|
       g:lsp_diagnostics_enabled             |g:lsp_diagnostics_enabled|
       g:lsp_diagnostics_echo_cursor         |g:lsp_diagnostics_echo_cursor|
       g:lsp_diagnostics_echo_delay          |g:lsp_diagnostics_echo_delay|
@@ -50,6 +49,10 @@ CONTENTS                                                  *vim-lsp-contents*
 			     |g:lsp_diagnostics_virtual_text_delay|
       g:lsp_diagnostics_virtual_text_prefix
 			     |g:lsp_diagnostics_virtual_text_prefix|
+      g:lsp_document_code_action_signs_enabled
+			     |g:lsp_document_code_actions_signs_enabled|
+      g:lsp_document_code_action_signs_delay
+			     |g:lsp_document_code_actions_signs_delay|
       g:lsp_format_sync_timeout             |g:lsp_format_sync_timeout|
       g:lsp_use_event_queue                 |g:lsp_use_event_queue|
       g:lsp_document_highlight_enabled      |g:lsp_document_highlight_enabled|
@@ -398,7 +401,17 @@ g:lsp_text_edit_enabled                           *g:lsp_text_edit_enabled*
 	let g:lsp_text_edit_enabled = 1
 	let g:lsp_text_edit_enabled = 0
 
-g:lsp_documentation_debounce                      *g:lsp_documentation_debounce*
+g:lsp_completion_documentation_enabled   *g:lsp_completion_documentation_enabled*
+    Type: |Number|
+    Default: `1`
+
+    Enables floating window documentation for complete items.
+
+    Example: >
+	let g:lsp_completion_documentation_enabled = 1
+	let g:lsp_completion_documentation_enabled = 0
+
+g:lsp_completion_documentation_delay       *g:lsp_completion_documentation_delay*
     Type: |Number|
     Default: `80`
 
@@ -406,39 +419,8 @@ g:lsp_documentation_debounce                      *g:lsp_documentation_debounce*
     help with performance. Set this to `0` to disable debouncing.
 
     Example: >
-	let g:lsp_documentation_debounce = 120
-	let g:lsp_documentation_debounce = 0
-
-g:lsp_documentation_float                      *g:lsp_documentation_float*
-    Type: |Number|
-    Default: `1`
-
-    Enables floating window documentation for complete items.
-
-    Example: >
-	let g:lsp_documentation_float = 1
-	let g:lsp_documentation_float = 0
-
-g:lsp_documentation_float_docked               *g:lsp_documentation_float_docked*
-    Type: |Number|
-    Default: `0`
-
-    Dock the floating documentation window for complete items if enabled.
-
-    Example: >
-	let g:lsp_documentation_float_docked = 1
-	let g:lsp_documentation_float_docked = 0
-
-g:lsp_documentation_float_docked_maxheight
-				    *g:lsp_documentation_float_docked_maxheight*
-    Type: |Number|
-    Default: `&previewheight`
-
-    The maximum height of the docked documentation window if enabled.
-
-    Example: >
-	let g:lsp_documentation_float_docked_maxheight = 1
-	let g:lsp_documentation_float_docked_maxheight = 0
+	let g:lsp_completion_documentation_delay = 120
+	let g:lsp_completion_documentation_delay = 0
 
 g:lsp_diagnostics_enabled                           *g:lsp_diagnostics_enabled*
     Type: |Number|
@@ -684,6 +666,29 @@ g:lsp_diagnostics_virtual_text_prefix   *g:lsp_diagnostics_virtual_text_prefix*
 	let g:lsp_diagnostics_virtual_text_prefix = "> "
 	let g:lsp_diagnostics_virtual_text_prefix = " ‣ "
 
+g:lsp_document_code_action_signs_enabled
+				      *g:lsp_document_code_action_signs_enabled*
+    Type: |Number|
+    Default: `1`
+
+    Enable support for document code action hints for |signs|.
+
+    Example: >
+	let g:lsp_document_code_action_signs_enabled = 1
+	let g:lsp_document_code_action_signs_enabled = 0
+<
+g:lsp_document_code_action_signs_delay
+					*g:lsp_document_code_action_signs_delay*
+    Type: |Number|
+    Default: `500`
+
+    Delay milliseconds to update code action signs. Requires
+    |g:lsp_document_code_action_signs_enabled|.
+
+    Example: >
+	let g:lsp_document_code_action_signs_delay = 200
+	let g:lsp_document_code_action_signs_delay = 1000
+>
 g:lsp_use_event_queue                               *g:lsp_use_event_queue*
     Type: |Number|
     Default: `1` for neovim or vim with patch-8.1.0889
@@ -1330,6 +1335,14 @@ lsp#get_progress()                       *lsp#get_progress()*
     * percentage
 	Type: |Number|
 	0 - 100 or not exist
+
+lsp#scroll(count)                                             *lsp#scroll()*
+
+    Scroll current displayed floating/popup window with specified count.
+
+    Example: >
+	inoremap <buffer> <expr><c-f> lsp#scroll(+4)
+	inoremap <buffer> <expr><c-d> lsp#scroll(-4)
 
 ==============================================================================
 Commands                                                  *vim-lsp-commands*
