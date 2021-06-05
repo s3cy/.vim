@@ -4,6 +4,8 @@ Async [Language Server Protocol](https://github.com/Microsoft/language-server-pr
 
 # Installing
 
+Install [vim-plug](https://github.com/junegunn/vim-plug) and then:
+
 ```viml
 Plug 'prabirshrestha/vim-lsp'
 ```
@@ -107,6 +109,7 @@ Refer to `:h vim-lsp-semantic` for more info.
 
 | Command | Description|
 |--|--|
+|`:LspAddTreeCallHierarchyIncoming`| Find incoming call hierarchy for the symbol under cursor, but add the result to the current list |
 |`:LspCallHierarchyIncoming`| Find incoming call hierarchy for the symbol under cursor |
 |`:LspCallHierarchyOutgoing`| Find outgoing call hierarchy for the symbol under cursor |
 |`:LspCodeAction`| Gets a list of possible commands that can be applied to a file so it can be fixed (quick fix) |
@@ -183,5 +186,13 @@ let g:asyncomplete_log_file = expand('~/asyncomplete.log')
 ## Tests
 
 [vim-themis](https://github.com/thinca/vim-themis) is used for testing. To run
-integration tests [rust-analyzer](https://github.com/rust-analyzer/rust-analyzer) 
+integration tests [gopls](https://github.com/golang/tools/tree/master/gopls)
 executable must be in path.
+
+## Maintainers
+
+- [Prabir Shrestha](https://github.com/prabirshrestha) (author, maintainer)
+- [mattn](https://github.com/mattn) (maintainer)
+- [hrsh7th](https://github.com/hrsh7th) (maintainer)
+- [Thomas Faingnaert](https://github.com/thomasfaingnaert) (maintainer)
+- [rhysd](https://github.com/rhysd) (maintainer)
