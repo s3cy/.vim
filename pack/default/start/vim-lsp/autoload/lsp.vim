@@ -29,6 +29,7 @@ augroup _lsp_silent_
     autocmd User lsp_complete_done silent
     autocmd User lsp_float_opened silent
     autocmd User lsp_float_closed silent
+    autocmd User lsp_float_focused silent
     autocmd User lsp_buffer_enabled silent
     autocmd User lsp_diagnostics_updated silent
     autocmd User lsp_progress_updated silent
@@ -212,6 +213,9 @@ function! s:register_events() abort
         if exists('##TextChangedP')
             autocmd TextChangedP * call s:on_text_document_did_change()
         endif
+        if g:lsp_untitled_buffer_enabled
+            autocmd FileType * call s:on_filetype_changed(bufnr(expand('<afile>')))
+        endif
     augroup END
 
     for l:bufnr in range(1, bufnr('$'))
@@ -226,6 +230,12 @@ function! s:unregister_events() abort
         autocmd!
     augroup END
     doautocmd <nomodeline> User lsp_unregister_server
+endfunction
+
+function! s:on_filetype_changed(buf) abort
+  call s:on_buf_wipeout(a:buf)
+  " TODO: stop unused servers
+  call s:on_text_document_did_open()
 endfunction
 
 function! s:on_text_document_did_open(...) abort
@@ -534,6 +544,9 @@ function! lsp#default_get_supported_capabilities(server_info) abort
     \       },
     \       'semanticHighlightingCapabilities': {
     \           'semanticHighlighting': lsp#ui#vim#semantic#is_enabled()
+    \       },
+    \       'publishDiagnostics': {
+    \           'relatedInformation': v:true,
     \       },
     \       'synchronization': {
     \           'didSave': v:true,
